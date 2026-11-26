@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The duckydrive.json Standard — DuckyDrive Master Specification</title>
+<meta name="description" content="The small metadata contract every DuckyDrive game carries, with examples and validation rules.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link is-active" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 09 · Section 23</p>
+<h1>The duckydrive.json Standard</h1>
+<p class="lede">A small, versioned metadata file at the root of every DuckyDrive game repository. Enough to publish correctly, small enough to fill in for a weekend prototype.</p>
+</header>
+<div class="prose">
+<h2>9.1 Persistence rule</h2>
+<p>Freebuff creates and maintains <code>duckydrive.json</code> whenever a new game is started for DuckyDrive — including in a new chat — using only information that is actually known about the project. The file is validated before deployment or catalogue publication. The user should never have to repeat this instruction.</p>
+<p>If a project is clearly unrelated to DuckyDrive, Freebuff does not add the file.</p>
+<h2>9.2 Minimal valid file</h2>
+<pre><code class="language-json">{
+  &quot;schema&quot;: 1,
+  &quot;name&quot;: &quot;Neon Drift&quot;,
+  &quot;description&quot;: &quot;A one-button rhythm racer built for keyboard and touch.&quot;,
+  &quot;type&quot;: [&quot;game&quot;],
+  &quot;slug&quot;: &quot;neon-drift&quot;
+}
+</code></pre>
+<p>That is the whole requirement. Everything else is optional.</p>
+<h2>9.3 Fully populated file</h2>
+<pre><code class="language-json">{
+  &quot;schema&quot;: 1,
+  &quot;slug&quot;: &quot;neon-drift&quot;,
+  &quot;name&quot;: &quot;Neon Drift&quot;,
+  &quot;description&quot;: &quot;A one-button rhythm racer built for keyboard and touch.&quot;,
+  &quot;overview&quot;: &quot;Longer copy shown on the project page.&quot;,
+  &quot;type&quot;: [&quot;game&quot;],
+  &quot;categories&quot;: [&quot;rhythm&quot;, &quot;casual&quot;],
+  &quot;tags&quot;: [&quot;one-button&quot;, &quot;arcade&quot;, &quot;synthwave&quot;],
+  &quot;platforms&quot;: [&quot;web&quot;, &quot;mobile-web&quot;],
+  &quot;thumbnail&quot;: &quot;./art/thumb.png&quot;,
+  &quot;screenshots&quot;: [&quot;./art/shot-1.png&quot;, &quot;./art/shot-2.png&quot;],
+  &quot;entry&quot;: &quot;./index.html&quot;,
+  &quot;hosting&quot;: {
+    &quot;status&quot;: &quot;hosted&quot;,
+    &quot;path&quot;: &quot;/neon-drift/&quot;,
+    &quot;provider&quot;: &quot;github-pages&quot;
+  },
+  &quot;repository&quot;: {
+    &quot;owner&quot;: &quot;DuckyDrive&quot;,
+    &quot;name&quot;: &quot;neon-drift&quot;
+  },
+  &quot;release&quot;: {
+    &quot;version&quot;: &quot;0.4.1&quot;,
+    &quot;date&quot;: &quot;2026-11-20&quot;,
+    &quot;notes&quot;: &quot;Added two tracks and fixed touch input on iOS.&quot;
+  },
+  &quot;featured&quot;: false,
+  &quot;capabilities&quot;: {
+    &quot;sdk&quot;: &quot;1.0&quot;,
+    &quot;playSessions&quot;: true,
+    &quot;liveEvents&quot;: [&quot;announcement&quot;, &quot;visual-weather&quot;]
+  }
+}
+</code></pre>
+<h2>9.4 Field reference</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Type</th>
+<th>Required</th>
+<th>Rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>schema</code></td>
+<td>integer</td>
+<td>Yes</td>
+<td>Currently <code>1</code>. Unknown major versions are rejected; unknown minor additions are ignored.</td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>1–60 characters, plain text.</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>10–200 characters, plain text, no HTML.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>string[]</td>
+<td>Yes</td>
+<td>From <code>game</code>, <code>site</code>, <code>software</code>, <code>experiment</code>, <code>repository</code>. At least one.</td>
+</tr>
+<tr>
+<td><code>slug</code></td>
+<td>string</td>
+<td>Required when <code>hosting.status</code> is <code>hosted</code></td>
+<td>Lowercase <code>a-z0-9-</code>, 2–40 chars, unique across the platform.</td>
+</tr>
+<tr>
+<td><code>overview</code></td>
+<td>string</td>
+<td>No</td>
+<td>Up to 4,000 characters, Markdown subset (paragraphs, lists, links, bold).</td>
+</tr>
+<tr>
+<td><code>categories</code></td>
+<td>string[]</td>
+<td>No</td>
+<td>From the controlled game category list. Max 6.</td>
+</tr>
+<tr>
+<td><code>tags</code></td>
+<td>string[]</td>
+<td>No</td>
+<td>Max 12, lowercase-hyphenated, max 24 chars each.</td>
+</tr>
+<tr>
+<td><code>platforms</code></td>
+<td>string[]</td>
+<td>No</td>
+<td><code>web</code>, <code>mobile-web</code>, <code>desktop</code>, <code>controller</code>.</td>
+</tr>
+<tr>
+<td><code>thumbnail</code></td>
+<td>string</td>
+<td>No</td>
+<td>Relative path under the repository, or https URL on an allowed host. PNG/JPEG/WebP, ≤ 2 MB, 16:9 recommended.</td>
+</tr>
+<tr>
+<td><code>screenshots</code></td>
+<td>string[]</td>
+<td>No</td>
+<td>Max 8, same rules as thumbnail.</td>
+</tr>
+<tr>
+<td><code>entry</code></td>
+<td>string</td>
+<td>No</td>
+<td>Relative path to the HTML entry document; defaults to <code>./index.html</code>.</td>
+</tr>
+<tr>
+<td><code>hosting</code></td>
+<td>object</td>
+<td>No</td>
+<td><code>status</code> ∈ <code>hosted</code>, <code>not_hosted</code>, <code>unknown</code>; <code>path</code> must match <code>/^\/[a-z0-9-]+\/$/</code>; <code>provider</code> ∈ <code>github-pages</code>, <code>external</code>.</td>
+</tr>
+<tr>
+<td><code>repository</code></td>
+<td>object</td>
+<td>No</td>
+<td><code>owner</code> and <code>name</code>; must match the repository being scanned or be explicitly declared on a fork.</td>
+</tr>
+<tr>
+<td><code>release</code></td>
+<td>object</td>
+<td>No</td>
+<td><code>version</code> (semver-ish string), <code>date</code> (ISO 8601), <code>notes</code> (plain text). Releases in GitHub override these values.</td>
+</tr>
+<tr>
+<td><code>featured</code></td>
+<td>boolean</td>
+<td>No</td>
+<td>A <strong>preference</strong>; staff still decide actual featuring.</td>
+</tr>
+<tr>
+<td><code>capabilities</code></td>
+<td>object</td>
+<td>No</td>
+<td><code>sdk</code> version, boolean feature flags and a <code>liveEvents</code> array of supported DLES capabilities.</td>
+</tr>
+</tbody>
+</table>
+<p>Unknown fields are preserved and ignored, never rejected, so a newer game can publish metadata before the platform understands it. A warning is logged so the platform can grow into the field.</p>
+<h2>9.5 Validation errors and warnings</h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Level</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>E_SCHEMA_VERSION</code></td>
+<td>Error</td>
+<td>Missing or unsupported <code>schema</code>.</td>
+</tr>
+<tr>
+<td><code>E_REQUIRED</code></td>
+<td>Error</td>
+<td><code>name</code>, <code>description</code> or <code>type</code> missing/invalid.</td>
+</tr>
+<tr>
+<td><code>E_SLUG_FORMAT</code></td>
+<td>Error</td>
+<td>Slug fails the pattern.</td>
+</tr>
+<tr>
+<td><code>E_SLUG_TAKEN</code></td>
+<td>Error</td>
+<td>Slug already reserved by another project.</td>
+</tr>
+<tr>
+<td><code>E_URL_UNSAFE</code></td>
+<td>Error</td>
+<td>A URL uses a disallowed scheme or escapes the repository root.</td>
+</tr>
+<tr>
+<td><code>E_CATEGORY_UNKNOWN</code></td>
+<td>Error</td>
+<td>Category not in the controlled list.</td>
+</tr>
+<tr>
+<td><code>E_ASSET_MISSING</code></td>
+<td>Warning</td>
+<td>Declared thumbnail/screenshot does not exist. Field dropped.</td>
+</tr>
+<tr>
+<td><code>W_TOO_LONG</code></td>
+<td>Warning</td>
+<td>Description or overview exceeds the recommended length and is truncated in listings.</td>
+</tr>
+<tr>
+<td><code>W_UNKNOWN_FIELD</code></td>
+<td>Warning</td>
+<td>Field not understood by this schema version; preserved.</td>
+</tr>
+<tr>
+<td><code>W_NO_ENTRY</code></td>
+<td>Warning</td>
+<td>Hosted project without a resolvable entry document.</td>
+</tr>
+</tbody>
+</table>
+<p>Warnings never block publication. Errors do, and are shown to the contributor with the exact path (<code>hosting.path</code>) that failed.</p>
+<h2>9.6 Safety rules</h2>
+<ul>
+<li>Paths are resolved relative to the repository root and must stay inside it — <code>../</code> escapes are rejected.</li>
+<li>URLs must be <code>https:</code> or repository-relative; <code>javascript:</code>, <code>data:</code> and <code>file:</code> are rejected.</li>
+<li>Displayed strings are escaped as text; the Markdown subset in <code>overview</code> allows no raw HTML, no scripts, no event attributes.</li>
+<li>The metadata file can never declare permissions, roles, staff status or capability overrides that grant privileges. <code>capabilities</code> describes what a game supports, not what it may do without authorisation.</li>
+</ul>
+<h2>9.7 Versioning and migration</h2>
+<ul>
+<li><code>schema</code> is an integer. Adding an optional field does not bump it; changing meaning or type does.</li>
+<li>A new schema version ships with a migration that maps old fields forward; both versions are accepted for at least one release cycle with a warning on the older one.</li>
+<li>The platform stores the raw file plus a parsed snapshot, so re-validation after a schema change is a re-parse rather than a re-scan.</li>
+<li>If a required field is removed in a future version, the migration supplies a default from the repository where possible, and otherwise marks the project for contributor review rather than hiding it silently.</li>
+</ul>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="github.html"><span>Previous</span><strong>GitHub Integration, Deployments & Auto-Publishing</strong></a>
+<a class="pager-link next" href="backend.html"><span>Next</span><strong>Supabase, Database & Service Contracts</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
