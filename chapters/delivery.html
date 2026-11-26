@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CI/CD, Freebuff Workflow & Operations — DuckyDrive Master Specification</title>
+<meta name="description" content="Branches, required checks, deployment strategy, monitoring, incident response and backups.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link is-active" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 15 · Sections 38-41</p>
+<h1>CI/CD, Freebuff Workflow & Operations</h1>
+<p class="lede">GitHub is the pipeline. Freebuff is the authoring environment. Nothing is published without review and a green build.</p>
+</header>
+<div class="prose">
+<h2>15.1 Repositories and naming</h2>
+<table>
+<thead>
+<tr>
+<th>Repository</th>
+<th>Purpose</th>
+<th>Pages target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DuckyDrive/DuckyDrive.github.io</code></td>
+<td>Main application</td>
+<td><code>https://duckydrive.github.io/</code></td>
+</tr>
+<tr>
+<td><code>DuckyDrive/&lt;game-slug&gt;</code></td>
+<td>One repository per game</td>
+<td><code>https://duckydrive.github.io/&lt;game-slug&gt;/</code></td>
+</tr>
+<tr>
+<td><code>DuckyDrive/spec</code> (optional)</td>
+<td>This specification site</td>
+<td>separate path or project site</td>
+</tr>
+</tbody>
+</table>
+<p>Naming: lowercase, hyphenated, matching the declared slug exactly. The slug is reserved in the database before the repository is created, so two games cannot claim the same path.</p>
+<h2>15.2 Branching and review</h2>
+<ul>
+<li><code>main</code> is protected: no direct pushes for anyone except the Owner's documented emergency procedure.</li>
+<li>Work happens on short-lived branches (<code>feat/catalogue-filters</code>, <code>fix/chat-reconnect</code>).</li>
+<li>Every change opens a pull request with a description of intent and risk.</li>
+<li>Required checks must pass: typecheck, lint, unit and integration tests, metadata validation (for game repos), build, output-path validation, accessibility smoke test (main app).</li>
+<li>At least one approval is required. The Owner can merge their own changes, but the checks still apply.</li>
+<li>Squash merge keeps history readable; the PR title becomes the commit subject.</li>
+<li>Release tags are <code>vMAJOR.MINOR.PATCH</code> and are created only from <code>main</code>.</li>
+</ul>
+<h2>15.3 Deployment strategy</h2>
+<p>Main application:</p>
+<ol>
+<li>CI builds the SPA for the GitHub Pages base path (<code>/&lt;repo&gt;/</code> or <code>/</code>).</li>
+<li>It validates that no asset references an absolute root path that would break a project-site deployment.</li>
+<li>It publishes atomically to Pages.</li>
+<li>A post-deploy smoke test fetches the landing page, a project page, the manifest and the API health endpoint, and fails the workflow if any is not 200 with expected content.</li>
+</ol>
+<p>Game repositories follow the same shape with their own folder as the target. A reusable workflow holds the shared steps so games do not each reinvent them.</p>
+<p><strong>Staging:</strong> a separate Pages environment (or a project page under a staging repository) built from <code>main</code> before production promotion, with a staging Supabase project. Secrets are per-environment and never shared.</p>
+<p><strong>Rollback:</strong> redeploy the previous known-good commit (Pages keeps the artifact history), or revert the merge commit and re-run the pipeline. Database changes roll back by applying the compensating migration, never by restoring a production snapshot over live data.</p>
+<h2>15.4 Environment variables and secrets</h2>
+<table>
+<thead>
+<tr>
+<th>Where</th>
+<th>Contains</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Build-time public variables</td>
+<td>API base URL, Supabase URL, anon key, feature flags safe for public use.</td>
+</tr>
+<tr>
+<td>Frontend bundle</td>
+<td>Nothing else. Ever.</td>
+</tr>
+<tr>
+<td>CI secrets</td>
+<td>Deployment token, Pages token, secret-scanning notification webhook.</td>
+</tr>
+<tr>
+<td>Edge function secrets</td>
+<td>Service-role key, GitHub App private key, webhook signing secret, signing keys.</td>
+</tr>
+</tbody>
+</table>
+<p>Secret handling rules: no secret in a public repository, no secret in a client bundle, rotation runbook for every key, secret scanning enabled, and CI failing the build if a high-entropy string appears in a public artifact.</p>
+<h2>15.5 Database migrations</h2>
+<ul>
+<li>SQL migrations live in version control, numbered and forward-only.</li>
+<li>Applied by CI to staging, verified, then to production on merge.</li>
+<li>Each migration states its rollback (a compensating migration) and its data impact.</li>
+<li>Destructive changes are two-step: add the new column, backfill, switch reads, then remove the old column in a later release.</li>
+<li>Migration failures halt the pipeline; no partial application.</li>
+<li>Schema changes that affect RLS ship with the matching policy tests.</li>
+</ul>
+<h2>15.6 Freebuff workflow</h2>
+<p>Freebuff is the authoring environment for this project, not a replacement for review.</p>
+<p>Expected behaviour:</p>
+<ol>
+<li>Read the specification (this site) before making product decisions.</li>
+<li>Work inside the relevant repository and follow its instructions.</li>
+<li>Generate and maintain <code>duckydrive.json</code> for any new game, including in a new chat, filling only known fields.</li>
+<li>Add the SDK or DLES integration only when asked, and only within declared capabilities.</li>
+<li>Run the project's checks and report what passed and what did not.</li>
+<li>Explain changed files and risks in plain language.</li>
+<li><strong>Never publish or deploy without the agreed review and approval flow.</strong></li>
+<li>Keep diffs reviewable, preserve existing code, avoid destructive rewrites.</li>
+<li>If the project is clearly unrelated to DuckyDrive, do not add DuckyDrive metadata.</li>
+</ol>
+<p>Persistent rule: the <code>duckydrive.json</code> requirement is a standing workflow instruction, not something the user must repeat per project.</p>
+<h2>15.7 Release checklist</h2>
+<ul>
+<li>All required checks green on <code>main</code></li>
+<li>Migration applied to staging and verified</li>
+<li>Feature flags set for the intended rollout</li>
+<li><code>duckydrive.json</code> validated for every changed game</li>
+<li>Deployment output paths verified against collisions</li>
+<li>Accessibility smoke test passed</li>
+<li>Rollback plan identified</li>
+<li>Post-deploy smoke test passed</li>
+<li>Release notes written for user-visible changes</li>
+</ul>
+<h2>15.8 Monitoring and observability</h2>
+<table>
+<thead>
+<tr>
+<th>Signal</th>
+<th>Source</th>
+<th>Alert threshold</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Error rate</td>
+<td>Edge function logs</td>
+<td>&gt; 2% of requests over 5 min</td>
+</tr>
+<tr>
+<td>Auth failures</td>
+<td>Auth adapter</td>
+<td>&gt; 20 failed logins/min from one origin</td>
+</tr>
+<tr>
+<td>Deployment failures</td>
+<td>CI + Pages status</td>
+<td>any failure on <code>main</code></td>
+</tr>
+<tr>
+<td>Webhook backlog</td>
+<td>Queue depth</td>
+<td>&gt; 100 pending or oldest &gt; 10 min</td>
+</tr>
+<tr>
+<td>Sync staleness</td>
+<td><code>last_successful_scan</code></td>
+<td>&gt; 30 h for any active repository</td>
+</tr>
+<tr>
+<td>Realtime disconnects</td>
+<td>Channel metrics</td>
+<td>&gt; 10% of sessions in 10 min</td>
+</tr>
+<tr>
+<td>Database saturation</td>
+<td>Provider metrics</td>
+<td>connection or CPU &gt; 80%</td>
+</tr>
+<tr>
+<td>Abuse signals</td>
+<td>Rate-limit hits, report spike</td>
+<td>3× baseline in an hour</td>
+</tr>
+</tbody>
+</table>
+<p>Dashboards are operational only and staff-facing. There is no developer-facing analytics product.</p>
+<h2>15.9 Backup and disaster recovery</h2>
+<ul>
+<li><strong>Database:</strong> daily automatic backups plus point-in-time recovery where the plan allows; a weekly verified restore into a scratch project.</li>
+<li><strong>Storage:</strong> profile artwork backed up on the same schedule; assets are re-derivable from source if lost.</li>
+<li><strong>Source:</strong> GitHub is the backup for code; local and CI clones are disposable.</li>
+<li><strong>Configuration:</strong> secrets in a documented secret store with recovery access for the Owner only.</li>
+<li><strong>RPO/RTO targets:</strong> RPO 24 h (1 h with PITR), RTO 4 h for a full restore at prototype scale.</li>
+<li><strong>Free-tier honesty:</strong> automatic backups and retention differ by plan; if the plan does not provide PITR or long retention, the specification states the real RPO and the upgrade point rather than assuming enterprise guarantees.</li>
+<li><strong>Restore drill:</strong> quarterly, documented, with counts compared against expectations and logins verified.</li>
+</ul>
+<h2>15.10 Maintenance mode</h2>
+<p>A platform setting that: serves a maintenance page for the main app, keeps games reachable (they are separate deployments), blocks writes, keeps staff login available, and states an expected return time. Toggling it is an audited Owner or <code>settings.manage</code> action.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="quality.html"><span>Previous</span><strong>Performance, Accessibility & QA</strong></a>
+<a class="pager-link next" href="roadmap.html"><span>Next</span><strong>Roadmap, Acceptance Criteria & Risk</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
