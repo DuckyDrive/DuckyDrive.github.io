@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Performance, Accessibility & QA — DuckyDrive Master Specification</title>
+<meta name="description" content="Budgets, indexing, realtime limits, accessibility requirements and the negative test suite.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link is-active" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 14 · Sections 35-37</p>
+<h1>Performance, Accessibility & QA</h1>
+<p class="lede">Budgets that are measured, accessibility that is tested, and negative tests that try to break the permission model on purpose.</p>
+</header>
+<div class="prose">
+<h2>14.1 Frontend budgets</h2>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Target (mobile, mid-range)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Largest Contentful Paint</td>
+<td>≤ 2.5 s</td>
+</tr>
+<tr>
+<td>Interaction to Next Paint</td>
+<td>≤ 200 ms</td>
+</tr>
+<tr>
+<td>Cumulative Layout Shift</td>
+<td>≤ 0.05</td>
+</tr>
+<tr>
+<td>Initial JS (compressed, per route)</td>
+<td>≤ 180 KB</td>
+</tr>
+<tr>
+<td>Fonts</td>
+<td>2 families, subset, <code>display=swap</code></td>
+</tr>
+<tr>
+<td>Images</td>
+<td>AVIF/WebP, responsive <code>srcset</code>, lazy below the fold</td>
+</tr>
+</tbody>
+</table>
+<p>Techniques: route-level code splitting, prefetch on hover/intent, artwork served at display size with an aspect-ratio box reserved, skeletons sized to final content, and no client-side blocking on analytics (there is none).</p>
+<h2>14.2 Backend and data budgets</h2>
+<ul>
+<li>Public catalogue reads served from materialised views with indexes on <code>(visibility, discovered_at)</code> and <code>trending_score</code>; no sequential scans on list endpoints.</li>
+<li>Pagination capped at 50, default 24; no unbounded <code>select *</code>.</li>
+<li>Query timeout 5 s for user-facing reads; heavy aggregation moved to scheduled jobs.</li>
+<li>Realtime: one channel per open room, max 200 concurrent subscriptions per project page, presence throttled to one update per 30 s.</li>
+<li>Background work (discovery scans, trending recomputation, snapshots, reconciliation) runs on a queue with concurrency limits and per-job timeouts.</li>
+<li>Search: prepared full-text index; suggestions limited to 8 with a 250 ms debounce.</li>
+<li>GitHub API: conditional requests, ETag caching, per-installation budget, jittered backoff.</li>
+</ul>
+<h2>14.3 Caching and degradation</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Policy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Static assets</td>
+<td>Immutable, hashed filenames, 1-year cache.</td>
+</tr>
+<tr>
+<td>HTML entry</td>
+<td>Short cache with revalidation.</td>
+</tr>
+<tr>
+<td>Public API reads</td>
+<td>Short-lived cache (30–60 s) with stale-while-revalidate.</td>
+</tr>
+<tr>
+<td>User-specific data</td>
+<td>Never cached at shared layers.</td>
+</tr>
+<tr>
+<td>Fallback</td>
+<td>If the backend is unreachable, show cached catalogue pages with a "may be out of date" banner; chat falls back to polling; GitHub failures surface as "unavailable" fields, not blank pages.</td>
+</tr>
+</tbody>
+</table>
+<h2>14.4 Accessibility requirements</h2>
+<ul>
+<li>Fully keyboard operable: skip link, landmark order, focus-visible on everything interactive, focus trapped in dialogs and restored on close.</li>
+<li>Contrast: 4.5:1 body text, 3:1 large text and essential UI boundaries. Lime on near-black passes; lime text on light surfaces is never used.</li>
+<li>Semantics: one <code>h1</code> per route, headings in order, lists for lists, tables with headers and captions, forms with labels (not placeholder-only).</li>
+<li>Announcements: <code>aria-live="polite"</code> for counts and toasts, <code>assertive</code> only for errors that interrupt.</li>
+<li>Motion: <code>prefers-reduced-motion</code> removes parallax, glow animation and carousel transitions; no animation blocks input.</li>
+<li>Touch targets: 44×44 px minimum, 8 px spacing between adjacent targets.</li>
+<li>Zoom: usable to 200% without horizontal scrolling on a 375 px viewport.</li>
+<li>Media: meaningful images have alt text; decorative artwork is marked decorative; charts have a text summary.</li>
+<li>Games are out of scope for platform accessibility guarantees, but the catalogue states when a game's accessibility support is unknown.</li>
+</ul>
+<h2>14.5 Test strategy</h2>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What it covers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit</td>
+<td>Validation, scoring maths, permission resolution, metadata parsing, formatting.</td>
+</tr>
+<tr>
+<td>Integration</td>
+<td>Edge functions against a test database: auth, favourites, ratings, moderation, XP awards.</td>
+</tr>
+<tr>
+<td>Database / RLS</td>
+<td>Every table exercised as anon, member, owner-of-row, staff, and non-owner member.</td>
+</tr>
+<tr>
+<td>End-to-end</td>
+<td>Register → browse → play → rate → comment → favourite → collection → report.</td>
+</tr>
+<tr>
+<td>GitHub</td>
+<td>Webhook signature, duplicate delivery, out-of-order events, rename/transfer, revocation.</td>
+</tr>
+<tr>
+<td>Metadata</td>
+<td>Valid minimal, valid full, each error code, unknown fields, path escape attempts.</td>
+</tr>
+<tr>
+<td>Deployment</td>
+<td>Collision prevention, absolute-path rejection, smoke test, rollback.</td>
+</tr>
+<tr>
+<td>Realtime</td>
+<td>Two clients, reconnect, backfill, unauthorised room join.</td>
+</tr>
+<tr>
+<td>DLES</td>
+<td>Global start, partial fan-out failure, server join mid-event, duplicate action, emergency stop, reward duplication.</td>
+</tr>
+<tr>
+<td>Security</td>
+<td>Access-control matrix, CSRF, XSS payloads in every text field, rate limits, IDOR.</td>
+</tr>
+<tr>
+<td>Accessibility</td>
+<td>Automated axe pass on every route, plus manual keyboard and screen-reader passes on core flows.</td>
+</tr>
+<tr>
+<td>Responsive</td>
+<td>375, 768, 1024, 1440 widths for shell, catalogue, project page and chat.</td>
+</tr>
+<tr>
+<td>Load</td>
+<td>200 concurrent readers and 50 chat participants on a staging database.</td>
+</tr>
+<tr>
+<td>Recovery</td>
+<td>Restore a backup into a scratch project and verify counts and logins.</td>
+</tr>
+</tbody>
+</table>
+<h2>14.6 Required negative tests</h2>
+<p>Each of these must fail <em>safely</em>, with a specific error and an audit entry where relevant:</p>
+<ol>
+<li>A normal member attempts an admin action → <code>403 permission_denied</code>.</li>
+<li>An Administrator attempts an Owner-only action → <code>403</code>, target protection holds.</li>
+<li>An Administrator without repository access attempts to edit a game → <code>403</code>, even with every catalogue permission.</li>
+<li>A contributor loses GitHub access → next edit attempt fails, discovery scope shrinks.</li>
+<li>A private repository is discovered → withheld, never listed.</li>
+<li>A malformed <code>duckydrive.json</code> is found → validation error recorded, project not published.</li>
+<li>A webhook is replayed → second delivery is a no-op.</li>
+<li>A deployment fails → no public release entry, project marked <code>deployment_failed</code>.</li>
+<li>A DLES action is duplicated → second action rejected by idempotency.</li>
+<li>A game server disconnects during a global event → state tracked, restore attempted, dashboard shows unreachable.</li>
+<li>A user awards themselves XP or a duplicate reward → rejected by ledger constraint.</li>
+<li>A user uploads an image to chat → rejected by schema, not just hidden by the UI.</li>
+<li>A user requests another user's private collection or DM → <code>403</code> via RLS, not an empty response presented as success.</li>
+<li>A user follows a project and the project updates → no notification created.</li>
+</ol>
+<h2>14.7 Acceptance criteria pattern</h2>
+<p>Every feature carries its own criteria in Chapter 16, written as observable behaviour: given a state, when an action occurs, then a specific result. "Works well" and "is secure" are not criteria; "an unauthenticated POST to /collections returns 401 and creates no row" is.</p>
+<h2>14.8 Definition of done</h2>
+<p>A feature is done when: requirements and permissions are implemented, RLS is tested for all roles, error states exist, keyboard and screen-reader paths work, the relevant negative tests pass, audit entries are written where required, documentation is updated, and no confirmed decision from Chapter 2 is contradicted.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="security.html"><span>Previous</span><strong>Security, Privacy & Media Policy</strong></a>
+<a class="pager-link next" href="delivery.html"><span>Next</span><strong>CI/CD, Freebuff Workflow & Operations</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
