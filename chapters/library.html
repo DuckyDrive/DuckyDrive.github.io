@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Library, Collections, Ratings & Progress — DuckyDrive Master Specification</title>
+<meta name="description" content="Favourites, collections, one-rating-per-account reviews, XP, achievements and leaderboards.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link is-active" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 07 · Sections 15-17</p>
+<h1>Library, Collections, Ratings & Progress</h1>
+<p class="lede">Favourites, saved projects, recently played, custom collections, achievements, XP and leaderboards — with no pay-to-win and no seasonal competitions.</p>
+</header>
+<div class="prose">
+<h2>7.1 Library surfaces</h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Favourites</td>
+<td>One row per user/project. Toggling is idempotent and updates the public favourite count atomically.</td>
+</tr>
+<tr>
+<td>Saved projects</td>
+<td>A bookmark separate from favourite: "save for later" without signalling interest publicly.</td>
+</tr>
+<tr>
+<td>Recently played</td>
+<td>Last 30 played projects with timestamps; private by default; clearable. Only recorded from validated play sessions.</td>
+</tr>
+<tr>
+<td>Achievements</td>
+<td>Earned badges and progress toward next tiers.</td>
+</tr>
+<tr>
+<td>Collections</td>
+<td>User-curated lists, public or private.</td>
+</tr>
+</tbody>
+</table>
+<h2>7.2 Collections</h2>
+<ul>
+<li>Create, rename, edit description, reorder items, delete.</li>
+<li>Visibility: private (default) or public. A public collection is shareable by link and discoverable in search.</li>
+<li>Add/remove projects; duplicates within one collection are prevented by a unique constraint, not by client checks.</li>
+<li>Item ordering is explicit (<code>position</code>), reorderable by drag or keyboard controls.</li>
+<li>Public collections show creator, item count, follower count and like count. Others can follow and like a public collection.</li>
+<li>Deleting a collection deletes its items and cascades to follows and likes.</li>
+<li>When a user makes a collection private, existing followers lose access immediately; no notification is sent.</li>
+<li>Content moderation applies to collection title and description; reported collections can be hidden with the owner notified of the reason.</li>
+</ul>
+<p>Example collections: <em>Favourite Games</em>, <em>To Play Later</em>, <em>Best FNF Mods</em>.</p>
+<h2>7.3 Ratings and reviews</h2>
+<ul>
+<li>One rating per account per project, 1–5 stars, editable, deletable.</li>
+<li>The average and count are materialised and recalculated on write; a rating change updates both rather than inserting a new aggregate.</li>
+<li>A written comment/review is optional and independent of the rating. Comments support replies (two levels), likes and reports.</li>
+<li>Creators can reply once per top-level comment, marked as a creator reply.</li>
+<li>Anti-brigading: a rating from an account younger than 24 hours, or from an account with no play session on a game, is recorded but weighted 0 in the displayed average until the account ages past the threshold. Weighting is transparent: the UI states when a rating set is adjusted.</li>
+<li>Moderated or deleted comments are replaced with a tombstone; the rating itself is unaffected unless the account is under enforcement.</li>
+<li>Accounts deleted by the user have their ratings removed; suspended accounts' ratings are excluded from display while enforcement is active and restored automatically if the suspension is lifted with all penalties cleared.</li>
+</ul>
+<p><strong>Audit rule:</strong> aggregates never change silently. Each recalculation driven by moderation or enforcement writes an audit record (project, old value, new value, reason, actor, timestamp). Historical aggregates are never rewritten without such a record.</p>
+<h2>7.4 XP, levels and achievements</h2>
+<p><strong>Achievement families:</strong> Explorer, Player, Collector, Critic, Creator/Contributor, Veteran. <strong>Tiers:</strong> Bronze, Silver, Gold, Diamond.</p>
+<p>Example achievements:</p>
+<table>
+<thead>
+<tr>
+<th>Achievement</th>
+<th>Family</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>First Steps</td>
+<td>Explorer</td>
+<td>Launch any project.</td>
+</tr>
+<tr>
+<td>Category Cartographer</td>
+<td>Explorer</td>
+<td>Play one game in five categories.</td>
+</tr>
+<tr>
+<td>Marathon</td>
+<td>Player</td>
+<td>10 hours of measured play.</td>
+</tr>
+<tr>
+<td>Curator</td>
+<td>Collector</td>
+<td>Create a public collection with 10 items.</td>
+</tr>
+<tr>
+<td>Fair Judge</td>
+<td>Critic</td>
+<td>Rate 10 projects with written reviews.</td>
+</tr>
+<tr>
+<td>Shipped It</td>
+<td>Creator/Contributor</td>
+<td>A project you own passes validation.</td>
+</tr>
+<tr>
+<td>Founding Duck</td>
+<td>Veteran</td>
+<td>Account age of one year with activity in the last 90 days.</td>
+</tr>
+</tbody>
+</table>
+<p>Rules:</p>
+<ul>
+<li>Achievement XP is awarded <strong>once</strong> per achievement, enforced by a unique constraint on <code>(user_id, achievement_id)</code>.</li>
+<li>XP is written through an append-only ledger; balances and levels are derived or materialised from the ledger, never set directly by a client.</li>
+<li>Daily caps per family (for example, Explorer activity caps at 150 XP/day) prevent grinding.</li>
+<li>Self-dealing is blocked: a creator does not earn Creator XP from their own repeated play, ratings or collections.</li>
+<li>Suspended or banned accounts earn nothing during enforcement and are excluded from leaderboard snapshots.</li>
+<li>Rewards are cosmetic and recognition-based: badges, profile frames, titles. No gameplay advantage, no purchases, no loot.</li>
+</ul>
+<h2>7.5 Leaderboards</h2>
+<ul>
+<li><strong>Global XP</strong>, <strong>weekly</strong>, <strong>monthly</strong>, <strong>level ranking</strong>, and a <strong>contributor</strong> ranking based on validated, published project activity.</li>
+<li>Weekly and monthly boards are rolling windows, not seasons: there is no reset ceremony, no seasonal badge, no "season pass".</li>
+<li>Contributor ranking does not create a staff role. It measures published work, not permissions.</li>
+<li>Snapshots are materialised on a schedule (hourly for global, daily for weekly/monthly) so reads are cheap.</li>
+<li>Ties break by earliest achievement of the score, then by account age.</li>
+<li>Banned accounts are removed from all boards at the next snapshot; the removal is logged.</li>
+</ul>
+<h2>7.6 Anti-abuse summary</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XP farming</td>
+<td>Per-family daily caps, diminishing returns on repeats, unique achievement grants.</td>
+</tr>
+<tr>
+<td>Bot plays</td>
+<td>Session fingerprints, minimum session duration for XP eligibility, anomaly detection on play volume.</td>
+</tr>
+<tr>
+<td>Rating brigading</td>
+<td>New-account weighting, one rating per account, burst detection on a project.</td>
+</tr>
+<tr>
+<td>Follower inflation</td>
+<td>Follows from accounts younger than 24 hours are recorded but excluded from public counts until aged.</td>
+</tr>
+<tr>
+<td>Duplicate rewards</td>
+<td>Unique grants plus idempotency keys on every award endpoint.</td>
+</tr>
+<tr>
+<td>Leaderboard manipulation</td>
+<td>Server-side scoring only, immutable ledger, audit of adjustments.</td>
+</tr>
+</tbody>
+</table>
+<h2>7.7 Data implications</h2>
+<p>New tables: <code>favourites</code>, <code>saved_projects</code>, <code>recently_played</code>, <code>collections</code>, <code>collection_items</code>, <code>collection_follows</code>, <code>collection_likes</code>, <code>ratings</code>, <code>comments</code>, <code>comment_likes</code>, <code>achievements</code>, <code>user_achievements</code>, <code>xp_ledger</code>, <code>leaderboard_snapshots</code>. Each is specified with keys, constraints and RLS expectations in Chapter 10.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="social.html"><span>Previous</span><strong>Friends, Chat, Messaging & Notifications</strong></a>
+<a class="pager-link next" href="github.html"><span>Next</span><strong>GitHub Integration, Deployments & Auto-Publishing</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
