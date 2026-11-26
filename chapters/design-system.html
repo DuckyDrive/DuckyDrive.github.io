@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Design System, Navigation & UX — DuckyDrive Master Specification</title>
+<meta name="description" content="Colour tokens, type scale, spacing, states and the collapsible sidebar shell.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link is-active" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 03 · Sections 6-7</p>
+<h1>Design System, Navigation & UX</h1>
+<p class="lede">A dark, futuristic system with electric lime as the primary accent and neon purple as the secondary. Values here are proposed tokens, not previously approved values.</p>
+</header>
+<div class="prose">
+<h2>3.1 Colour tokens</h2>
+<table>
+<thead>
+<tr>
+<th>Token</th>
+<th>Value</th>
+<th>Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--bg-base</code></td>
+<td><code>#060910</code></td>
+<td>Page background, near-black navy.</td>
+</tr>
+<tr>
+<td><code>--bg-raised</code></td>
+<td><code>#0a0f1a</code></td>
+<td>Sections that sit above the base.</td>
+</tr>
+<tr>
+<td><code>--panel</code></td>
+<td><code>#0e1626</code></td>
+<td>Cards, sidebar, dialogs.</td>
+</tr>
+<tr>
+<td><code>--panel-2</code></td>
+<td><code>#121d31</code></td>
+<td>Inputs, nested panels, hovered cards.</td>
+</tr>
+<tr>
+<td><code>--line</code></td>
+<td><code>rgba(255,255,255,0.08)</code></td>
+<td>Dividers and card borders.</td>
+</tr>
+<tr>
+<td><code>--line-strong</code></td>
+<td><code>rgba(255,255,255,0.14)</code></td>
+<td>Focused or emphasised borders.</td>
+</tr>
+<tr>
+<td><code>--text</code></td>
+<td><code>#e8edf7</code></td>
+<td>Primary text (cool white).</td>
+</tr>
+<tr>
+<td><code>--muted</code></td>
+<td><code>#8e9bb3</code></td>
+<td>Secondary text, metadata.</td>
+</tr>
+<tr>
+<td><code>--muted-2</code></td>
+<td><code>#66738c</code></td>
+<td>Tertiary text, placeholder.</td>
+</tr>
+<tr>
+<td><code>--accent-lime</code></td>
+<td><code>#c6ff3d</code></td>
+<td>Primary actions, active state, success, primary links.</td>
+</tr>
+<tr>
+<td><code>--accent-purple</code></td>
+<td><code>#a855f7</code></td>
+<td>Secondary accent, featured labels, links in prose.</td>
+</tr>
+<tr>
+<td><code>--danger</code></td>
+<td><code>#ff5f6d</code></td>
+<td>Destructive actions, destructive errors.</td>
+</tr>
+<tr>
+<td><code>--warning</code></td>
+<td><code>#ffc857</code></td>
+<td>Warnings, moderation states.</td>
+</tr>
+<tr>
+<td><code>--info</code></td>
+<td><code>#4cc9f0</code></td>
+<td>Informational banners.</td>
+</tr>
+</tbody>
+</table>
+<p>Glow is used at low intensity: accent glows stay under 40% opacity, large radial glows only appear on hero surfaces, and no element uses more than one glow at a time.</p>
+<h2>3.2 Typography</h2>
+<p>Geometric display type for headings, a neutral sans for body, monospace for data.</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Font</th>
+<th>Size / line-height</th>
+<th>Weight</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Display</td>
+<td>Space Grotesk</td>
+<td>44/1.1 → 32/1.15 (responsive)</td>
+<td>700</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>Space Grotesk</td>
+<td>32/1.15</td>
+<td>600</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Space Grotesk</td>
+<td>24/1.25</td>
+<td>600</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Space Grotesk</td>
+<td>18/1.35</td>
+<td>600</td>
+</tr>
+<tr>
+<td>Body</td>
+<td>Inter</td>
+<td>16/1.6</td>
+<td>400</td>
+</tr>
+<tr>
+<td>Body small</td>
+<td>Inter</td>
+<td>14/1.55</td>
+<td>400</td>
+</tr>
+<tr>
+<td>Label</td>
+<td>Inter</td>
+<td>12/1.4, uppercase, +0.08em tracking</td>
+<td>600</td>
+</tr>
+<tr>
+<td>Mono</td>
+<td>JetBrains Mono / system mono</td>
+<td>13/1.6</td>
+<td>400</td>
+</tr>
+</tbody>
+</table>
+<p>Line length is capped at roughly 72 characters for prose. Numbers in tables and statistics use tabular figures so columns line up.</p>
+<h2>3.3 Spacing, radii and elevation</h2>
+<p>Spacing follows a 4px base: <code>4, 8, 12, 16, 20, 24, 32, 40, 48, 64</code>. Radii: <code>--r-sm: 10px</code> (inputs, chips), <code>--r-md: 16px</code> (cards, panels), <code>--r-lg: 24px</code> (hero, modals), <code>--r-full: 999px</code> (pills, avatars).</p>
+<p>Elevation is expressed as dark shadow plus border rather than light shadow, because the palette is dark:</p>
+<ul>
+<li><code>--elev-1</code>: <code>0 1px 0 rgba(255,255,255,0.04) inset</code></li>
+<li><code>--elev-2</code>: <code>0 18px 40px -24px rgba(0,0,0,0.8)</code></li>
+<li><code>--elev-3</code>: <code>0 32px 70px -32px rgba(0,0,0,0.9)</code> plus a 1px <code>--line-strong</code> border</li>
+</ul>
+<h2>3.4 Interaction states</h2>
+<p>Every interactive element defines all six states. Missing states are defects.</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Treatment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Default</td>
+<td>Panel background, <code>--line</code> border, <code>--text</code> label.</td>
+</tr>
+<tr>
+<td>Hover</td>
+<td>Background lifts one step, border becomes <code>--line-strong</code>, no layout shift.</td>
+</tr>
+<tr>
+<td>Focus-visible</td>
+<td>2px lime outline with 2px offset, always visible on keyboard focus; never removed without a replacement.</td>
+</tr>
+<tr>
+<td>Active / pressed</td>
+<td>1px translate down, background darkens slightly.</td>
+</tr>
+<tr>
+<td>Disabled</td>
+<td>45% opacity, <code>cursor: not-allowed</code>, no hover response, tooltip explains why when the reason is not obvious.</td>
+</tr>
+<tr>
+<td>Loading</td>
+<td>Shimmer skeleton for content, inline spinner for buttons, button label replaced and <code>aria-busy="true"</code>.</td>
+</tr>
+</tbody>
+</table>
+<h2>3.5 Feedback states</h2>
+<ul>
+<li><strong>Empty</strong> — a short explanation, one primary action, no decorative illustration larger than the message.</li>
+<li><strong>Error</strong> — what failed, what to do next, and a retry action where retry is safe. Errors are announced to screen readers via <code>role="alert"</code> and are tied to fields with <code>aria-describedby</code>.</li>
+<li><strong>Partial</strong> — when one data source fails (for example GitHub metadata), show the catalogue entry with the missing field labelled "unavailable" rather than an empty page.</li>
+<li><strong>Offline / degraded</strong> — a persistent but non-blocking banner stating which feature is affected.</li>
+</ul>
+<h2>3.6 Application shell and navigation</h2>
+<p>Desktop shows a 286px left sidebar that collapses to a 72px icon rail. The rail keeps icons with tooltips and an accessible name on every item. Mobile replaces the sidebar with a slide-out drawer triggered by a menu button, closed by a scrim tap, the Escape key, or route change.</p>
+<p>Navigation order (agreed areas): Home, Games, Sites, Repositories, Software, Newly Added, Recently Updated, Experiments, Trending, Following, Chat, Library, Settings. <strong>Admin Panel</strong> appears only for accounts holding at least one admin-scoped permission.</p>
+<p>Search is available from the top bar on every route, opens with <code>/</code> or <code>Ctrl/⌘+K</code>, and returns grouped results (projects, collections, users, rooms). The sidebar keeps its own filter input for long chapter-style lists.</p>
+<h2>3.7 Homepage composition</h2>
+<ol>
+<li><strong>Hero</strong> — one featured project: artwork, name, one-line description, category chips, and a primary Launch/View action. Rotation is manual via arrow controls; there is no timer, no auto-advance and no rapid carousel.</li>
+<li><strong>Continue</strong> — recently played, only when the user has history.</li>
+<li><strong>Trending</strong> — the current 14-day trending list, category-filterable.</li>
+<li><strong>Newly added</strong> — recent validated additions.</li>
+<li><strong>Curated rows</strong> — featured collections or category picks.</li>
+<li><strong>Discovery strip</strong> — search entry point plus "Surprise me".</li>
+</ol>
+<h2>3.8 Responsive behaviour</h2>
+<table>
+<thead>
+<tr>
+<th>Breakpoint</th>
+<th>Width</th>
+<th>Layout</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sm</code></td>
+<td>&lt; 640</td>
+<td>Single column, drawer nav, 16px gutters, 2-up card grid minimum 1-up.</td>
+</tr>
+<tr>
+<td><code>md</code></td>
+<td>640–1023</td>
+<td>Two-column grids, drawer nav under 900px, 24px gutters.</td>
+</tr>
+<tr>
+<td><code>lg</code></td>
+<td>1024–1439</td>
+<td>Expanded sidebar, 2–3 column grids.</td>
+</tr>
+<tr>
+<td><code>xl</code></td>
+<td>≥ 1440</td>
+<td>Max content width 1280px, 3–4 column grids, sidebar stays expanded.</td>
+</tr>
+</tbody>
+</table>
+<p>Cards reflow by container width, not by device guesswork. Sticky elements never cover more than 15% of viewport height on short screens.</p>
+<h2>3.9 Accessibility requirements</h2>
+<ul>
+<li>Semantic landmarks: <code>header</code>, <code>nav</code>, <code>main</code>, <code>aside</code>, <code>footer</code>, one <code>h1</code> per route.</li>
+<li>Focus order matches visual order; no positive <code>tabindex</code>.</li>
+<li>Text contrast at least 4.5:1, large text 3:1, UI borders 3:1 against adjacent colour.</li>
+<li>Minimum touch target 44×44px.</li>
+<li><code>prefers-reduced-motion</code> disables parallax, glow animation and carousel transitions.</li>
+<li>Dialogs trap focus, restore focus on close, and have <code>aria-modal</code> with a labelled title.</li>
+<li>Live regions announce async results (search counts, message arrival) without stealing focus.</li>
+<li>Charts and statistic visuals have text equivalents.</li>
+</ul>
+<h2>3.10 Component inventory</h2>
+<p>Buttons (primary, secondary, ghost, danger, icon), inputs (text, search, select, multiselect, toggle, slider), chips, tabs, cards (project, collection, user, stat), project hero, rating control, comment thread, message bubble, toast, banner, modal, drawer, data table, pagination, skeleton, empty state, error state, permission badge, avatar stack.</p>
+<p>Each component is specified once with its states and then reused. No route invents local variants of a shared component.</p>
+<blockquote>
+<p>All values in this chapter are proposals for the design system. They are recorded as tokens so the implementation can apply them consistently rather than re-deciding on each screen.</p>
+</blockquote>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="confirmed-decisions.html"><span>Previous</span><strong>Confirmed Decisions & Non-Goals</strong></a>
+<a class="pager-link next" href="catalogue.html"><span>Next</span><strong>Catalogue, Search & Discovery</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
