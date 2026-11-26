@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Friends, Chat, Messaging & Notifications — DuckyDrive Master Specification</title>
+<meta name="description" content="Friend graph, public rooms, friend-only DMs, and a notification inbox without update spam.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link is-active" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 06 · Sections 12-14</p>
+<h1>Friends, Chat, Messaging & Notifications</h1>
+<p class="lede">Text, emojis and reactions only. No attachments in public chat or private messages, and no embedding workaround.</p>
+</header>
+<div class="prose">
+<h2>6.1 Social graph</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Send friend request</td>
+<td>Requires a public profile or a shared room; blocked users cannot request. Max 20 pending outgoing requests. Duplicate requests collapse into one.</td>
+</tr>
+<tr>
+<td>Accept / reject</td>
+<td>Recipient only. Accepting creates a symmetric friendship; rejecting deletes the request without notifying the sender that they were "rejected" beyond the request disappearing.</td>
+</tr>
+<tr>
+<td>Remove friend</td>
+<td>Either side, immediate, no notification with a reason.</td>
+</tr>
+<tr>
+<td>Block</td>
+<td>Immediate, one-sided from the blocker's perspective, symmetric in effect. Ends friendship, cancels pending requests, prevents messages and requests.</td>
+</tr>
+</tbody>
+</table>
+<p>Friendship state is stored as a pair-normalised row so a single row represents both directions.</p>
+<h2>6.2 Presence and activity</h2>
+<p>Online status is opt-in and off by default. It is derived from recent authenticated activity (last 5 minutes) with a coarse label ("Online" / "Active recently" / nothing). "Now playing" appears only when the game integration reports it <strong>and</strong> the user has enabled sharing it. Presence is never inferred from IP geolocation.</p>
+<h2>6.3 Public chat</h2>
+<p>Initial rooms: <strong>General</strong>, <strong>Gaming</strong>, <strong>Development</strong>, <strong>Announcements</strong>.</p>
+<ul>
+<li>Guests can read public rooms; posting requires an account.</li>
+<li>Rooms are created and archived under a staff permission. Archived rooms become read-only and stay visible.</li>
+<li>Messages support plain text (max 1,000 characters), emojis and reactions (one per user per message, multiple emoji types).</li>
+<li><strong>No attachments, no images, no files, no link previews generated from uploaded media.</strong> URLs are rendered as plain links subject to a safe-scheme check.</li>
+<li>Rate limits: 5 messages per 10 seconds per account, with a soft warning at 3 and a temporary mute on repeated bursts.</li>
+<li>Duplicate-message detection collapses accidental double sends.</li>
+<li>Slow mode can be enabled per room by staff (minimum interval between messages).</li>
+</ul>
+<p><strong>Moderation:</strong> staff can remove a message (visible tombstone "Message removed by moderator" with reason category), pin up to 10 messages per room, mute a user for a room, and review reports. Announcements room is staff-post-only; admin announcements also appear in the notification inbox for users who subscribe to announcements.</p>
+<h2>6.4 Private messaging</h2>
+<ul>
+<li>Friend-only by default. A setting allows messages from "friends only" or "nobody"; there is no open inbox.</li>
+<li>One-to-one conversations only. No group DMs in v1.</li>
+<li>Text, emojis and reactions. <strong>No image, video or file attachments, and no workaround via external URLs or embeds.</strong></li>
+<li>Deletion: "Delete for me" removes it from the requester's view only. "Unsend" is available for 10 minutes, replaces the message with a tombstone for both participants, and retains a moderation audit record (author, timestamp, room/conversation id, reason) without the body after 30 days.</li>
+<li>Read receipts are optional and off by default; when off, the sender sees only "delivered".</li>
+<li>Blocking ends the conversation's ability to send, and existing messages remain visible to the blocker.</li>
+<li>Reporting a message includes surrounding context for moderators only.</li>
+<li>Rate limits and spam detection apply; first messages from a new friend are limited to 10 per minute.</li>
+</ul>
+<h2>6.5 Notifications</h2>
+<p>A single inbox with categories the user controls:</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Triggers</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comment replies</td>
+<td>Someone replies to your comment or reviews a project you own</td>
+<td>On</td>
+</tr>
+<tr>
+<td>Comment likes</td>
+<td>Someone likes your comment</td>
+<td>On, digestible</td>
+</tr>
+<tr>
+<td>Achievements</td>
+<td>You unlock an achievement or tier</td>
+<td>On</td>
+</tr>
+<tr>
+<td>Friend requests</td>
+<td>New request, accepted request</td>
+<td>On</td>
+</tr>
+<tr>
+<td>Friend activity</td>
+<td>Friend comes online or starts playing, when both opt in</td>
+<td>Off</td>
+</tr>
+<tr>
+<td>Live events</td>
+<td>DLES event announcements</td>
+<td>On</td>
+</tr>
+<tr>
+<td>Admin announcements</td>
+<td>Platform announcements</td>
+<td>On</td>
+</tr>
+<tr>
+<td>Account security</td>
+<td>New login, password change, recovery use, factor change</td>
+<td>Always on, non-disableable</td>
+</tr>
+<tr>
+<td>Game updates</td>
+<td>Only when a user explicitly subscribes to a supported notification type for that project</td>
+<td>Off</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Following a project never generates a notification when it updates.</strong> There is no code path that converts a follow into an update notification; the subscription for game updates is a separate, explicit, per-project action.</p>
+<p>Behaviour: unread badge on the inbox, mark one/mark all read, history retained 90 days, duplicates de-duplicated by a deterministic event key (so a retried job cannot double-notify), and per-category quiet hours.</p>
+<h2>6.6 Data and safety</h2>
+<ul>
+<li>Messages are stored with author id, room or conversation id, body, timestamp, edit state and moderation state.</li>
+<li>Reports keep a snapshot of the reported content so later edits or deletions cannot erase evidence.</li>
+<li>Retention: public chat 24 months, DMs 12 months after last activity, reports and moderation records per Chapter 13.</li>
+<li>Access control is enforced with Row Level Security: a participant can read their conversation; a moderator can read reported content only in the context of an assigned report, and every such read is audited.</li>
+<li>No end-to-end encryption is claimed. Privacy statements describe server-side storage, retention and staff access honestly.</li>
+</ul>
+<h2>6.7 Realtime transport</h2>
+<p>Chat and presence use the realtime channel per room with:</p>
+<ul>
+<li>one subscription per open room, closed on route change,</li>
+<li>server-generated sequence numbers for ordering, with client reconciliation on reconnect,</li>
+<li>resume-from-sequence on reconnect, backfill up to 50 messages,</li>
+<li>initial connection authorisation via a short-lived token issued by the server that encodes room membership — the client never chooses its own identity,</li>
+<li>degraded mode: if realtime is unavailable, the room falls back to polling every 10 seconds and shows a banner.</li>
+</ul>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="accounts.html"><span>Previous</span><strong>DuckyDrive ID, Profiles & Privacy</strong></a>
+<a class="pager-link next" href="library.html"><span>Next</span><strong>Library, Collections, Ratings & Progress</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
