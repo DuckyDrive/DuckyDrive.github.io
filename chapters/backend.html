@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Supabase, Database & Service Contracts — DuckyDrive Master Specification</title>
+<meta name="description" content="Planned relational schema, Row Level Security expectations and the API boundaries.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link is-active" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 10 · Sections 24-26</p>
+<h1>Supabase, Database & Service Contracts</h1>
+<p class="lede">Supabase is the planned backend, subject to prototype validation. The frontend is public, so every sensitive rule is enforced server-side.</p>
+</header>
+<div class="prose">
+<h2>10.1 Architecture</h2>
+<pre><code>GitHub Pages (public SPA)
+   │  anon key, RLS-scoped reads
+   ├──────────────► Supabase Postgres + RLS
+   │                     ▲
+   │                     │ service role (server only)
+   └──► Edge Functions ──┘
+          ├── auth adapter (username-only credentials)
+          ├── GitHub webhook receiver
+          ├── repository scan + validation jobs
+          ├── XP / achievement awards
+          ├── DLES coordinator
+          └── moderation + admin actions
+</code></pre>
+<p>Constraints:</p>
+<ul>
+<li>The service-role key exists only in Edge Function secrets. It is never bundled, never in the repository, never in a public variable.</li>
+<li>The browser holds the anon key and can only do what RLS permits.</li>
+<li>Every privileged operation is an Edge Function that authenticates the caller, re-checks permissions against the database, then acts.</li>
+<li>Client-supplied user ids, roles, XP totals, permissions and reward claims are ignored; the server derives them.</li>
+<li>Environment separation: <code>dev</code>, <code>staging</code>, <code>prod</code> projects with separate keys and separate data. No cross-environment references.</li>
+</ul>
+<h2>10.2 Identity on Supabase</h2>
+<p>The provider's built-in email-based auth cannot be used as-is because no email is collected. The planned adapter:</p>
+<ol>
+<li>A <code>credentials</code> table holds username → password hash, passkey records and TOTP secrets, managed only by Edge Functions.</li>
+<li>Successful credential verification issues a short-lived session token (signed JWT with <code>sub = user_id</code>), rotated on refresh.</li>
+<li>Postgres RLS reads the verified <code>sub</code> claim; it never trusts a client-provided id.</li>
+<li>Validation task: confirm the adapter's security properties (session revocation, replay resistance, cookie handling with a static frontend) before commitment. Fallback: self-hosted session service with Supabase used only for database, storage and realtime.</li>
+</ol>
+<h2>10.3 Proposed schema (core tables)</h2>
+<p>All tables use <code>uuid</code> primary keys (<code>gen_random_uuid()</code>), <code>created_at</code>/<code>updated_at</code> timestamps, and never expose a raw username as a foreign key.</p>
+<table>
+<thead>
+<tr>
+<th>Table</th>
+<th>Key columns</th>
+<th>Uniques / indexes</th>
+<th>RLS summary</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>users</code></td>
+<td><code>id</code>, <code>username</code>, <code>username_normalised</code>, <code>password_hash</code>, <code>status</code>, <code>created_at</code></td>
+<td>unique <code>username_normalised</code>; index <code>status</code></td>
+<td>Self read/update; public read of non-sensitive columns via a view.</td>
+</tr>
+<tr>
+<td><code>profiles</code></td>
+<td><code>user_id</code> PK/FK, <code>bio</code>, <code>avatar_key</code>, <code>banner_key</code>, <code>visibility</code>, <code>show_online</code>, <code>allow_recs</code></td>
+<td>PK <code>user_id</code></td>
+<td>Public read when <code>visibility='public'</code>; owner write.</td>
+</tr>
+<tr>
+<td><code>credentials</code></td>
+<td><code>user_id</code>, <code>kind</code>, <code>secret_hash</code>, <code>created_at</code></td>
+<td>unique <code>(user_id, kind)</code></td>
+<td>No client access; server only.</td>
+</tr>
+<tr>
+<td><code>recovery_codes</code></td>
+<td><code>user_id</code>, <code>code_hash</code>, <code>used_at</code></td>
+<td>index <code>(user_id)</code></td>
+<td>Server only.</td>
+</tr>
+<tr>
+<td><code>sessions</code></td>
+<td><code>id</code>, <code>user_id</code>, <code>device_label</code>, <code>last_seen</code>, <code>revoked_at</code></td>
+<td>index <code>(user_id, revoked_at)</code></td>
+<td>Owner read/revoke; server write.</td>
+</tr>
+<tr>
+<td><code>username_history</code></td>
+<td><code>user_id</code>, <code>username</code>, <code>changed_at</code>, <code>reserved_until</code></td>
+<td>unique <code>username</code></td>
+<td>Public read of reservation window; server write.</td>
+</tr>
+<tr>
+<td><code>github_identities</code></td>
+<td><code>user_id</code>, <code>github_user_id</code>, <code>login</code>, <code>scopes</code>, <code>revoked_at</code></td>
+<td>unique <code>(github_user_id)</code></td>
+<td>Owner read; server write.</td>
+</tr>
+<tr>
+<td><code>github_grants</code></td>
+<td><code>id</code>, <code>github_user_id</code>, <code>repo_id</code>, <code>permission</code>, <code>checked_at</code></td>
+<td>unique <code>(github_user_id, repo_id)</code></td>
+<td>Owner read; server write.</td>
+</tr>
+<tr>
+<td><code>projects</code></td>
+<td><code>id</code>, <code>slug</code>, <code>name</code>, <code>description</code>, <code>overview</code>, <code>visibility</code>, <code>hosting_status</code>, <code>discovered_at</code>, <code>latest_release_at</code></td>
+<td>unique <code>slug</code>; index <code>(visibility, discovered_at desc)</code>, <code>(visibility, latest_release_at desc)</code></td>
+<td>Public read when visible; contributor/staff write via functions.</td>
+</tr>
+<tr>
+<td><code>project_types</code></td>
+<td><code>project_id</code>, <code>type</code></td>
+<td>PK <code>(project_id, type)</code></td>
+<td>Follows project visibility.</td>
+</tr>
+<tr>
+<td><code>categories</code>, <code>tags</code></td>
+<td><code>id</code>, <code>slug</code>, <code>name</code></td>
+<td>unique <code>slug</code></td>
+<td>Public read; staff write.</td>
+</tr>
+<tr>
+<td><code>project_categories</code>, <code>project_tags</code></td>
+<td>join rows</td>
+<td>PK pairs</td>
+<td>Follows project visibility.</td>
+</tr>
+<tr>
+<td><code>project_stats</code></td>
+<td><code>project_id</code> PK, <code>plays</code>, <code>unique_players</code>, <code>followers</code>, <code>rating_count</code>, <code>rating_sum</code>, <code>trending_score</code></td>
+<td>index <code>trending_score desc</code></td>
+<td>Public read; server write.</td>
+</tr>
+<tr>
+<td><code>repositories</code></td>
+<td><code>id</code>, <code>github_repo_id</code>, <code>owner</code>, <code>name</code>, <code>visibility</code>, <code>last_synced_at</code>, <code>sync_state</code></td>
+<td>unique <code>github_repo_id</code></td>
+<td>Staff read; server write.</td>
+</tr>
+<tr>
+<td><code>webhook_events</code></td>
+<td><code>delivery_id</code> PK, <code>event</code>, <code>payload_hash</code>, <code>received_at</code>, <code>processed_at</code>, <code>status</code></td>
+<td>index <code>(status, received_at)</code></td>
+<td>Server only.</td>
+</tr>
+<tr>
+<td><code>releases</code></td>
+<td><code>id</code>, <code>project_id</code>, <code>version</code>, <code>tag</code>, <code>published_at</code>, <code>notes</code>, <code>is_prerelease</code></td>
+<td>unique <code>(project_id, tag)</code></td>
+<td>Public read for visible projects.</td>
+</tr>
+<tr>
+<td><code>deployments</code></td>
+<td><code>id</code>, <code>project_id</code>, <code>commit_sha</code>, <code>status</code>, <code>url</code>, <code>finished_at</code>, <code>log_ref</code></td>
+<td>index <code>(project_id, finished_at desc)</code></td>
+<td>Public status summary; staff full log.</td>
+</tr>
+<tr>
+<td><code>favourites</code></td>
+<td><code>user_id</code>, <code>project_id</code>, <code>created_at</code></td>
+<td>PK <code>(user_id, project_id)</code></td>
+<td>Owner read/write; aggregate via view.</td>
+</tr>
+<tr>
+<td><code>saved_projects</code></td>
+<td><code>user_id</code>, <code>project_id</code></td>
+<td>PK pair</td>
+<td>Owner only.</td>
+</tr>
+<tr>
+<td><code>recently_played</code></td>
+<td><code>user_id</code>, <code>project_id</code>, <code>played_at</code>, <code>session_id</code></td>
+<td>index <code>(user_id, played_at desc)</code></td>
+<td>Owner only.</td>
+</tr>
+<tr>
+<td><code>follows</code></td>
+<td><code>user_id</code>, <code>project_id</code></td>
+<td>PK pair</td>
+<td>Owner read/write.</td>
+</tr>
+<tr>
+<td><code>collections</code></td>
+<td><code>id</code>, <code>owner_id</code>, <code>title</code>, <code>visibility</code>, <code>created_at</code></td>
+<td>index <code>(owner_id)</code>, <code>(visibility)</code></td>
+<td>Public read when public; owner write.</td>
+</tr>
+<tr>
+<td><code>collection_items</code></td>
+<td><code>collection_id</code>, <code>project_id</code>, <code>position</code></td>
+<td>PK <code>(collection_id, project_id)</code></td>
+<td>Follows collection visibility.</td>
+</tr>
+<tr>
+<td><code>collection_follows</code>, <code>collection_likes</code></td>
+<td>pair rows</td>
+<td>PK pairs</td>
+<td>Owner write; counts public.</td>
+</tr>
+<tr>
+<td><code>ratings</code></td>
+<td><code>user_id</code>, <code>project_id</code>, <code>score</code>, <code>updated_at</code></td>
+<td>PK <code>(user_id, project_id)</code>; check <code>score between 1 and 5</code></td>
+<td>Owner write; aggregate public.</td>
+</tr>
+<tr>
+<td><code>comments</code></td>
+<td><code>id</code>, <code>project_id</code>, <code>author_id</code>, <code>parent_id</code>, <code>body</code>, <code>state</code></td>
+<td>index <code>(project_id, created_at)</code>; <code>parent_id</code> depth limited to 1</td>
+<td>Public read when visible; author edit within window.</td>
+</tr>
+<tr>
+<td><code>comment_likes</code></td>
+<td><code>comment_id</code>, <code>user_id</code></td>
+<td>PK pair</td>
+<td>Owner write.</td>
+</tr>
+<tr>
+<td><code>friendships</code></td>
+<td><code>user_a</code>, <code>user_b</code>, <code>created_at</code></td>
+<td>PK <code>(user_a, user_b)</code> with <code>user_a &lt; user_b</code></td>
+<td>Participants only.</td>
+</tr>
+<tr>
+<td><code>friend_requests</code></td>
+<td><code>id</code>, <code>from_user</code>, <code>to_user</code>, <code>status</code></td>
+<td>unique pending <code>(from_user, to_user)</code></td>
+<td>Participants only.</td>
+</tr>
+<tr>
+<td><code>blocks</code></td>
+<td><code>blocker_id</code>, <code>blocked_id</code></td>
+<td>PK pair</td>
+<td>Owner read/write.</td>
+</tr>
+<tr>
+<td><code>chat_rooms</code></td>
+<td><code>id</code>, <code>slug</code>, <code>name</code>, <code>archived_at</code>, <code>slow_mode_seconds</code></td>
+<td>unique <code>slug</code></td>
+<td>Public read.</td>
+</tr>
+<tr>
+<td><code>messages</code></td>
+<td><code>id</code>, <code>room_id</code>, <code>conversation_id</code>, <code>author_id</code>, <code>body</code>, <code>seq</code>, <code>state</code></td>
+<td>index <code>(room_id, seq)</code>, <code>(conversation_id, seq)</code></td>
+<td>Room public; conversation participants only.</td>
+</tr>
+<tr>
+<td><code>message_reactions</code></td>
+<td><code>message_id</code>, <code>user_id</code>, <code>emoji</code></td>
+<td>PK <code>(message_id, user_id, emoji)</code></td>
+<td>Participants.</td>
+</tr>
+<tr>
+<td><code>conversations</code></td>
+<td><code>id</code>, <code>user_a</code>, <code>user_b</code>, <code>last_message_at</code></td>
+<td>unique pair</td>
+<td>Participants.</td>
+</tr>
+<tr>
+<td><code>notifications</code></td>
+<td><code>id</code>, <code>user_id</code>, <code>category</code>, <code>event_key</code>, <code>read_at</code>, <code>payload</code></td>
+<td>unique <code>(user_id, event_key)</code>; index <code>(user_id, read_at)</code></td>
+<td>Owner only.</td>
+</tr>
+<tr>
+<td><code>achievements</code>, <code>user_achievements</code></td>
+<td>definitions + grants</td>
+<td>unique <code>(user_id, achievement_id)</code></td>
+<td>Definitions public; grants owner/public by setting.</td>
+</tr>
+<tr>
+<td><code>xp_ledger</code></td>
+<td><code>id</code>, <code>user_id</code>, <code>amount</code>, <code>reason</code>, <code>ref</code>, <code>created_at</code></td>
+<td>unique <code>(user_id, reason, ref)</code>; index <code>(user_id, created_at)</code></td>
+<td>Owner read; server write only.</td>
+</tr>
+<tr>
+<td><code>leaderboard_snapshots</code></td>
+<td><code>id</code>, <code>board</code>, <code>window_start</code>, <code>rows</code></td>
+<td>index <code>(board, window_start desc)</code></td>
+<td>Public read.</td>
+</tr>
+<tr>
+<td><code>reports</code></td>
+<td><code>id</code>, <code>reporter_id</code>, <code>target_type</code>, <code>target_id</code>, <code>category</code>, <code>state</code>, <code>snapshot</code></td>
+<td>index <code>(state, created_at)</code></td>
+<td>Reporter reads own; staff read.</td>
+</tr>
+<tr>
+<td><code>moderation_actions</code></td>
+<td><code>id</code>, <code>actor_id</code>, <code>target_user</code>, <code>action</code>, <code>reason_code</code>, <code>expires_at</code></td>
+<td>index <code>(target_user)</code>, <code>(actor_id)</code></td>
+<td>Staff read; server write.</td>
+</tr>
+<tr>
+<td><code>staff_roles</code></td>
+<td><code>user_id</code>, <code>role</code>, <code>granted_by</code></td>
+<td>unique <code>(user_id)</code></td>
+<td>Staff read; Owner write.</td>
+</tr>
+<tr>
+<td><code>permission_grants</code></td>
+<td><code>user_id</code>, <code>permission</code>, <code>granted_by</code></td>
+<td>PK pair</td>
+<td>Staff read; Owner write.</td>
+</tr>
+<tr>
+<td><code>audit_log</code></td>
+<td><code>id</code>, <code>actor_id</code>, <code>action</code>, <code>target</code>, <code>metadata</code>, <code>created_at</code></td>
+<td>index <code>(created_at desc)</code>, <code>(actor_id)</code></td>
+<td>Staff read; append-only.</td>
+</tr>
+<tr>
+<td><code>dles_events</code></td>
+<td><code>id</code>, <code>game_id</code>, <code>state</code>, <code>started_by</code>, <code>started_at</code>, <code>stopped_at</code></td>
+<td>index <code>(state)</code></td>
+<td>Staff read; server write.</td>
+</tr>
+<tr>
+<td><code>dles_actions</code></td>
+<td><code>id</code>, <code>event_id</code>, <code>capability</code>, <code>payload</code>, <code>status</code>, <code>acked_servers</code></td>
+<td>index <code>(event_id)</code></td>
+<td>Server only.</td>
+</tr>
+<tr>
+<td><code>dles_rewards</code></td>
+<td><code>id</code>, <code>event_id</code>, <code>user_id</code>, <code>item</code>, <code>granted_at</code></td>
+<td>unique <code>(event_id, user_id, item)</code></td>
+<td>Server only.</td>
+</tr>
+<tr>
+<td><code>platform_settings</code></td>
+<td><code>key</code> PK, <code>value</code>, <code>updated_by</code></td>
+<td>—</td>
+<td>Public subset; staff write.</td>
+</tr>
+</tbody>
+</table>
+<h2>10.4 Database rules</h2>
+<ul>
+<li><strong>Referential integrity</strong>: real foreign keys everywhere, <code>on delete cascade</code> for dependent rows (collection items, likes), <code>on delete set null</code> for authors of retained public content, restrict where deletion would orphan moderation records.</li>
+<li><strong>Soft deletion</strong>: <code>deleted_at</code> on user-authored public content (comments, collections) so tombstones and appeals work; hard deletion for private data on removal.</li>
+<li><strong>Counters</strong>: <code>project_stats</code> is the single source for public counts, updated in the same transaction as the action, with a nightly reconciliation from base tables.</li>
+<li><strong>Idempotency</strong>: unique constraints are the mechanism — favourites, follows, ratings, likes, achievement grants, XP awards, DLES rewards all have explicit uniques.</li>
+<li><strong>Username changes</strong>: nothing references usernames; all FKs use ids.</li>
+<li><strong>Search</strong>: a materialised <code>project_search</code> document refreshed on project change, with a Postgres full-text index.</li>
+<li><strong>Migrations</strong>: versioned SQL files, forward-only, applied through CI; each has a documented rollback (compensating migration), never an ad-hoc edit in production.</li>
+</ul>
+<h2>10.5 Service contracts</h2>
+<p>Format: <code>METHOD /path</code> with auth class, inputs, outputs, errors, limits.</p>
+<pre><code class="language-http">GET /projects?type=game&amp;category=rhythm&amp;sort=trending&amp;page=1
+Auth: public
+200 { items: [{ id, slug, name, description, thumbnail, types, hostingStatus, rating: {avg,count}, followers }],
+      page: 1, total: 128 }
+429 { error: &quot;rate_limited&quot;, retryAfterMs: 1200 }
+</code></pre>
+<pre><code class="language-http">POST /projects/{id}/ratings
+Auth: member
+Body: { score: 1..5 }
+200  { score, average, count }
+409  { error: &quot;duplicate_rating&quot;, hint: &quot;PATCH to update&quot; }
+403  { error: &quot;enforcement_active&quot; }
+</code></pre>
+<pre><code class="language-http">POST /collections/{id}/items
+Auth: collection owner
+Body: { projectId }
+201  { collectionId, projectId, position }
+409  { error: &quot;already_in_collection&quot; }
+422  { error: &quot;validation_failed&quot;, fields: { projectId: &quot;not_visible&quot; } }
+</code></pre>
+<pre><code class="language-http">POST /github/webhook
+Auth: HMAC signature
+Headers: X-Hub-Signature-256, X-GitHub-Delivery, X-GitHub-Event
+202  { queued: true }
+401  { error: &quot;bad_signature&quot; }   // logged, never retried by GitHub
+</code></pre>
+<pre><code class="language-http">POST /admin/users/{id}/suspend
+Auth: staff with `moderate.suspend`
+Body: { reasonCode, note, durationHours }
+200  { suspensionId, expiresAt }
+403  { error: &quot;permission_denied&quot;, required: &quot;moderate.suspend&quot; }
+409  { error: &quot;target_is_owner&quot; }
+</code></pre>
+<pre><code class="language-http">POST /dles/events/{id}/actions
+Auth: staff with `dles.operate`; game-server acknowledgement endpoint uses scoped game credentials
+Body: { capability: &quot;announcement&quot;, payload: { text, style, durationSeconds } }
+202  { actionId, queued: true }
+422  { error: &quot;capability_not_declared&quot; }
+</code></pre>
+<p>Every endpoint documents: auth class (public, member, contributor, staff, owner, game-server), authorisation rule, validation, error codes, rate limit, idempotency key behaviour and audit requirement. Contracts are examples of shape and are not live service definitions.</p>
+<h2>10.6 Rate limiting and abuse controls</h2>
+<p>Token buckets per account and per IP at the edge function layer, with per-route budgets: auth 10/min, writes 30/min, search 60/min, reports 5/hour, DLES actions 20/min with high-impact actions requiring confirmation. Exceeding a bucket returns <code>429</code> with a retry hint; repeated abuse escalates to a temporary block and produces an audit entry.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="metadata.html"><span>Previous</span><strong>The duckydrive.json Standard</strong></a>
+<a class="pager-link next" href="sdk-dles.html"><span>Next</span><strong>SDK & Live Events (DLES)</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
