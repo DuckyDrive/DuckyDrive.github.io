@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DuckyDrive ID, Profiles & Privacy — DuckyDrive Master Specification</title>
+<meta name="description" content="Username-only accounts, recovery codes, the reserved Owner name, and profile visibility controls.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link is-active" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 05 · Sections 10-11</p>
+<h1>DuckyDrive ID, Profiles & Privacy</h1>
+<p class="lede">One account works across the DuckyDrive ecosystem. No email address is required or collected as a mandatory field.</p>
+</header>
+<div class="prose">
+<h2>5.1 Identity model</h2>
+<p>DuckyDrive ID is the central identity. It consists of:</p>
+<ul>
+<li>a <strong>canonical user id</strong> (UUID) that never changes and is what every foreign key references,</li>
+<li>a <strong>username</strong> (unique, case-insensitively, changeable under cooldown),</li>
+<li><strong>credentials</strong> — a password hash, optionally a passkey and/or an authenticator secret,</li>
+<li><strong>recovery codes</strong> — ten single-use codes, generated at registration,</li>
+<li>optional <strong>linked identities</strong> (GitHub).</li>
+</ul>
+<p>Usernames are display data. Because they can change, no table stores a username as a foreign key; references always use the user id, and the profile table holds the current username plus a <code>username_history</code> table for cooldowns and anti-impersonation review.</p>
+<h2>5.2 Registration</h2>
+<ol>
+<li>Choose username — validated for length (3–24), allowed characters (<code>a-z 0-9 _ -</code>), reserved names, blocked terms, and availability.</li>
+<li>Choose password — minimum 12 characters, checked against a breached-password list where available, with no composition rules that push users toward predictable patterns.</li>
+<li>Password hashed with a modern memory-hard algorithm (Argon2id with tuned parameters; bcrypt acceptable only if Argon2 is unavailable), never logged, never returned.</li>
+<li>Ten recovery codes generated, shown <strong>once</strong>, stored only as hashes.</li>
+<li>Optional: enrol a passkey or authenticator app immediately, with a clear explanation of why it matters when email is absent.</li>
+</ol>
+<p>Registration is rate-limited per IP and per fingerprint, and blocked during maintenance mode with an explicit message.</p>
+<h2>5.3 The reserved Owner account</h2>
+<p>The username <code>DuckyDrive</code> is reserved and cannot be registered by anyone. The Owner account does not exist by assumption — it is bootstrapped:</p>
+<ol>
+<li>A one-time bootstrap secret is generated out of band and stored as a server-side secret (never in the frontend bundle or the repository).</li>
+<li>The bootstrap endpoint accepts the secret, the username <code>DuckyDrive</code>, a password, and creates exactly one Owner account, then invalidates the secret.</li>
+<li>If an Owner already exists, the endpoint refuses unconditionally.</li>
+<li>The Owner receives recovery codes and is required to enrol a second factor.</li>
+<li>Every bootstrap attempt is logged with time, result and origin; successful bootstrap triggers an alert.</li>
+</ol>
+<p>The Owner cannot be demoted, suspended or removed by other staff. Ownership transfer, if ever needed, is a documented out-of-band procedure, not a UI action.</p>
+<h2>5.4 Username changes</h2>
+<ul>
+<li>Cooldown of 30 days between changes; the first change is free.</li>
+<li>Previous usernames are reserved for 180 days to prevent impersonation.</li>
+<li>Names differing from a staff member's only by lookalike characters (<code>l</code>/<code>1</code>, <code>0</code>/<code>O</code>) are rejected.</li>
+<li>Changes are logged and appear in the account's security log.</li>
+<li>A name change does not break links: profile URLs resolve by id with the username as a slug, and old slugs redirect.</li>
+</ul>
+<h2>5.5 Sessions, recovery and security</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>Requirement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Session tokens</td>
+<td>HTTP-only, Secure, <code>SameSite=Lax</code> cookies; short-lived access token with rotating refresh.</td>
+</tr>
+<tr>
+<td>Session list</td>
+<td>Users can see active sessions (device label, last seen, rough location) and revoke any of them.</td>
+</tr>
+<tr>
+<td>Password change</td>
+<td>Requires current password; revokes all other sessions.</td>
+</tr>
+<tr>
+<td>Recovery codes</td>
+<td>Hashed at rest, single-use, regenerating invalidates all previous codes, with a confirmation warning.</td>
+</tr>
+<tr>
+<td>Passkeys</td>
+<td>WebAuthn, at least one registered before the password can be removed from the login path.</td>
+</tr>
+<tr>
+<td>2FA</td>
+<td>TOTP with a manual entry key and QR code; backup via recovery codes.</td>
+</tr>
+<tr>
+<td>Rate limits</td>
+<td>Per-account and per-IP limits on login, recovery and registration; exponential backoff after repeated failures.</td>
+</tr>
+<tr>
+<td>CSRF</td>
+<td>Required on all state-changing requests from cookie sessions using double-submit or same-site origin checks.</td>
+</tr>
+<tr>
+<td>Logging</td>
+<td>Login success/failure, password change, recovery use, factor change, session revocation — visible to the user.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recovery honesty.</strong> Because no email is collected, an account with lost password, lost passkey and lost recovery codes cannot be recovered by automatic means. The interface states this before registration and before a user dismisses their recovery codes. Staff-assisted recovery exists only as a narrow, audited, high-friction process for verified identities, and is not a hidden email mechanism. Owner recovery is a separate documented procedure requiring out-of-band proof.</p>
+<h2>5.6 Profiles</h2>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Username</td>
+<td>Yes</td>
+<td>Unique, changeable, cooldown.</td>
+</tr>
+<tr>
+<td>Avatar</td>
+<td>No</td>
+<td>Uploaded, processed, moderated.</td>
+</tr>
+<tr>
+<td>Banner</td>
+<td>No</td>
+<td>Same pipeline as avatar.</td>
+</tr>
+<tr>
+<td>Bio</td>
+<td>No</td>
+<td>500 characters, plain text, no HTML.</td>
+</tr>
+<tr>
+<td>Join date</td>
+<td>Auto</td>
+<td>Public.</td>
+</tr>
+<tr>
+<td>Achievements and badges</td>
+<td>Auto</td>
+<td>Public unless profile is private.</td>
+</tr>
+<tr>
+<td>Favourite projects</td>
+<td>No</td>
+<td>Visibility controlled.</td>
+</tr>
+<tr>
+<td>Public collections</td>
+<td>Auto</td>
+<td>Visibility controlled per collection.</td>
+</tr>
+<tr>
+<td>Staff status</td>
+<td>Auto</td>
+<td>Visible when the account holds a staff role.</td>
+</tr>
+<tr>
+<td>Online status</td>
+<td>No</td>
+<td>Opt-in; hidden by default.</td>
+</tr>
+<tr>
+<td>Now playing</td>
+<td>No</td>
+<td>Requires integration support <em>and</em> user permission.</td>
+</tr>
+</tbody>
+</table>
+<p>Avatar and banner uploads are separate from chat: chat accepts no images at all. Uploads are limited to 2 MB, JPEG/PNG/WebP only, re-encoded server-side, stripped of EXIF, served from a controlled bucket with a random object key, and deletable by the owner.</p>
+<h2>5.7 Privacy controls</h2>
+<p>A single Settings → Privacy panel controls: profile visibility (public/private), favourite visibility, collection visibility default, online status, activity visibility, activity-based recommendations, notification categories, and blocked users.</p>
+<table>
+<thead>
+<tr>
+<th>Viewer</th>
+<th>Public profile</th>
+<th>Private profile</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anyone</td>
+<td>Username, avatar, join date, public collections, achievements.</td>
+<td>Username, avatar only.</td>
+</tr>
+<tr>
+<td>Friend</td>
+<td>Adds online status (if enabled), favourites (if enabled), activity feed.</td>
+<td>Same as friend view of a public profile, minus hidden items.</td>
+</tr>
+<tr>
+<td>Staff</td>
+<td>Moderation-relevant data only, with the access logged.</td>
+<td>Same.</td>
+</tr>
+</tbody>
+</table>
+<p>Private profiles remain discoverable by username but expose no activity. Messages, private collections and reports are never visible to other ordinary users.</p>
+<h2>5.8 Blocking, deletion and retention</h2>
+<ul>
+<li><strong>Block</strong> is unilateral and immediate: it hides both profiles from each other, ends any friendship, blocks new friend requests and messages, and hides comment replies between them. Blocks are not announced to the blocked user.</li>
+<li><strong>Account deletion</strong> is requestable from Settings with password re-entry plus a second factor or recovery code. A 14-day grace period allows cancellation.</li>
+<li>On deletion, personal data is removed or anonymised: profile, uploads, private collections, messages authored in DMs, friend relationships, notification history. Content that forms part of public record (public comments, ratings, public collection metadata) is retained but attributed to a deleted-user placeholder, or removed where the user requested removal and no safety obligation applies.</li>
+<li>Moderation, audit and security records are retained for a defined period (Chapter 13) independent of account deletion, with access restricted to staff.</li>
+<li>Deletion is logged; the log records the request, the grace period and the completion, not the deleted content.</li>
+</ul>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="catalogue.html"><span>Previous</span><strong>Catalogue, Search & Discovery</strong></a>
+<a class="pager-link next" href="social.html"><span>Next</span><strong>Friends, Chat, Messaging & Notifications</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
