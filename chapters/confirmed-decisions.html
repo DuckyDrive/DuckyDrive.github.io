@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Confirmed Decisions & Non-Goals — DuckyDrive Master Specification</title>
+<meta name="description" content="The decisions that are locked, the defaults chosen for speed, and the features explicitly rejected.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link is-active" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 02 · Sections 4-5</p>
+<h1>Confirmed Decisions & Non-Goals</h1>
+<p class="lede">The locked decisions, the defaults chosen to keep delivery fast, and the features that must not appear.</p>
+</header>
+<div class="prose">
+<h2>2.1 Locked decisions</h2>
+<p>These are confirmed product decisions. Where a later chapter appears to conflict with one of them, the decision wins and the chapter is corrected.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Decision</th>
+<th>Enforcement point</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>D1</td>
+<td>One unified main application; sections are internal views.</td>
+<td>Router and build layout; no per-section deployment.</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>Games are separate repositories deployed to separate paths on the same domain, opened full-screen.</td>
+<td>Deployment pipeline; project launch action.</td>
+</tr>
+<tr>
+<td>D3</td>
+<td>Username + password accounts with no mandatory email.</td>
+<td>Registration and recovery flows.</td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Recovery codes are the primary recovery mechanism; passkeys and authenticator 2FA are optional.</td>
+<td>Identity service.</td>
+</tr>
+<tr>
+<td>D5</td>
+<td>The username <code>DuckyDrive</code> is reserved for the Owner and cannot be registered by anyone else.</td>
+<td>Username uniqueness check and registration.</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>There is no general Developer staff role.</td>
+<td>Permission model — the role does not exist.</td>
+</tr>
+<tr>
+<td>D7</td>
+<td>Game editing requires verified GitHub repository permission. Admin status alone does not grant it.</td>
+<td>GitHub permission check on every edit action.</td>
+</tr>
+<tr>
+<td>D8</td>
+<td>No image, video or file attachments in public chat or private messages, and no external-URL workaround.</td>
+<td>Message schema and validation.</td>
+</tr>
+<tr>
+<td>D9</td>
+<td>Following a project never generates an update notification.</td>
+<td>Notification rules.</td>
+</tr>
+<tr>
+<td>D10</td>
+<td>No seasonal competitions, seasonal leaderboard resets or exclusive seasonal badges.</td>
+<td>XP and leaderboard module.</td>
+</tr>
+<tr>
+<td>D11</td>
+<td>DLES live events are scheduled manually by authorised staff; no automatic or recurring event starts.</td>
+<td>Event coordinator.</td>
+</tr>
+<tr>
+<td>D12</td>
+<td>No private developer analytics dashboard; public statistics only.</td>
+<td>Product surface inventory.</td>
+</tr>
+<tr>
+<td>D13</td>
+<td>Newly discovered, valid projects publish automatically after validation; there is no default manual approval queue.</td>
+<td>Discovery pipeline.</td>
+</tr>
+<tr>
+<td>D14</td>
+<td>Staff hierarchy is Owner → Administrator → Moderator only.</td>
+<td>Permission model.</td>
+</tr>
+<tr>
+<td>D15</td>
+<td>Announcements in games appear as a top-of-screen banner, never a centre-screen takeover.</td>
+<td>DLES announcement capability.</td>
+</tr>
+<tr>
+<td>D16</td>
+<td>The Admin Panel is platform administration, not a developer studio.</td>
+<td>Admin module list.</td>
+</tr>
+</tbody>
+</table>
+<h2>2.2 Explicit non-goals</h2>
+<p>The following must not be built, even as a "small" addition, because each one contradicts a confirmed decision or expands scope without need:</p>
+<ul>
+<li>A second Developer dashboard for game analytics, build logs or player funnels.</li>
+<li>Chat or DM attachments of any kind, including embeds that reference external images as a workaround.</li>
+<li>Project-update notifications triggered by following.</li>
+<li>Seasonal events, seasonal resets, or badges that expire with a season.</li>
+<li>Automatic recurring DLES schedules or cron-driven event starts.</li>
+<li>Separate hosted applications for Chat, Library, Settings or Admin.</li>
+<li>A generic Developer staff role that grants game edit rights.</li>
+<li>Email collection as a required account field, or a hidden email-based recovery path.</li>
+<li>An embedded game player as the default launch behaviour.</li>
+<li>Per-project discussion forums; comments and replies cover this need.</li>
+<li>Auto-deployment of private, unfinished, unsupported or unvalidated projects.</li>
+</ul>
+<h2>2.3 Recommended defaults</h2>
+<p>These are chosen for speed and are reversible. They are documented so implementation does not stall on small questions.</p>
+<table>
+<thead>
+<tr>
+<th>Area</th>
+<th>Default</th>
+<th>Revisit when</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backend</td>
+<td>Supabase (Postgres, Auth-compatible identity, RLS, Storage, Realtime, Edge Functions)</td>
+<td>Prototype shows username-only auth or free-tier limits are unworkable.</td>
+</tr>
+<tr>
+<td>Frontend hosting</td>
+<td>GitHub Pages</td>
+<td>Pages limits (build size, no server runtime) block a required feature.</td>
+</tr>
+<tr>
+<td>Frontend stack</td>
+<td>One static SPA shell with route-level code splitting</td>
+<td>SEO demands per-route pre-rendering.</td>
+</tr>
+<tr>
+<td>Release source</td>
+<td>GitHub Releases; commit history only as a documented fallback</td>
+<td>A project has no releases at all.</td>
+</tr>
+<tr>
+<td>Trending window</td>
+<td>14-day weighted activity</td>
+<td>Data shows the window is too short or too long.</td>
+</tr>
+<tr>
+<td>Rating scale</td>
+<td>1–5 stars, one per account per project, editable</td>
+<td>Product decision to change scale.</td>
+</tr>
+<tr>
+<td>Comment depth</td>
+<td>Two levels (comment, reply)</td>
+<td>Threading is genuinely required.</td>
+</tr>
+<tr>
+<td>Discovery scan</td>
+<td>Webhook-driven with a 24-hour reconciliation scan</td>
+<td>Webhook volume or rate limits require change.</td>
+</tr>
+<tr>
+<td>Progression caps</td>
+<td>Daily XP caps per activity family</td>
+<td>Abuse data shows caps are wrong.</td>
+</tr>
+</tbody>
+</table>
+<h2>2.4 Assumptions to validate before commitment</h2>
+<ol>
+<li><strong>Username-only authentication</strong> can be implemented securely on the chosen provider without a mandatory email identifier. If the provider forces email, identity moves behind a server-side credential service and the provider becomes storage + database only.</li>
+<li><strong>Free-tier limits</strong> (database size, storage, realtime connections, edge function invocations, inactivity pausing) are sufficient for a prototype and early launch.</li>
+<li><strong>GitHub Pages</strong> can host the main application and many game deployments with per-path isolation, without a build step that exceeds Pages limits.</li>
+<li><strong>GitHub App permissions</strong> allow read-only discovery plus server-side permission checks for contributors, without asking every user for broad write scopes.</li>
+<li><strong>Webhook delivery</strong> is reliable enough for near-real-time updates, with the daily scan as the safety net.</li>
+<li><strong>Realtime chat</strong> stays within connection and message quotas at expected concurrency.</li>
+</ol>
+<p>Each assumption is tracked in the validation register (Chapter 17) with an owner-facing decision and a fallback.</p>
+<h2>2.5 Consistency review rule</h2>
+<p>Before any chapter is considered final, it is checked against the table in 2.1. The check is mechanical: for each decision, point at the code path or interface that enforces it. A decision with no enforcement point is not a decision, it is a wish.</p>
+<blockquote>
+<p>Nothing in this chapter authorises implementation. It records what has already been agreed so the build does not reopen it.</p>
+</blockquote>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="executive-summary.html"><span>Previous</span><strong>Executive Summary & Vision</strong></a>
+<a class="pager-link next" href="design-system.html"><span>Next</span><strong>Design System, Navigation & UX</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
