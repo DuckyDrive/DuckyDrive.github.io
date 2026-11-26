@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Panel, Staff Roles & Moderation — DuckyDrive Master Specification</title>
+<meta name="description" content="Owner, Administrator and Moderator permissions, deny-by-default checks, and the moderation queue.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link is-active" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 12 · Sections 29-31</p>
+<h1>Admin Panel, Staff Roles & Moderation</h1>
+<p class="lede">Deny by default. Three staff tiers. No Developer role. Every privileged action is checked server-side and logged.</p>
+</header>
+<div class="prose">
+<h2>12.1 Hierarchy</h2>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Granted by</th>
+<th>Scope</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Owner</strong></td>
+<td>Bootstrap only</td>
+<td>Full control. Cannot be demoted, suspended or removed by any other staff member.</td>
+</tr>
+<tr>
+<td><strong>Administrator</strong></td>
+<td>Owner</td>
+<td>Only the permissions explicitly granted. A new Administrator starts with none until a preset or custom set is applied.</td>
+</tr>
+<tr>
+<td><strong>Moderator</strong></td>
+<td>Owner</td>
+<td>Community moderation only: chat, comments, reports, conduct. No platform configuration, staff management, GitHub integration, deployment or DLES powers unless separately granted.</td>
+</tr>
+</tbody>
+</table>
+<p>There is no general Developer role. Game creation and editing belongs to the Owner and verified GitHub contributors of that repository — an Administrator without repository access cannot edit a game.</p>
+<h2>12.2 Permission model</h2>
+<p>Permissions are named capabilities, granted individually, evaluated server-side on every request.</p>
+<p>Suggested presets (templates, not immutable roles): Full Administrator, Community Administrator, Game/Project Catalogue Administrator, Chat Moderator, Custom.</p>
+<table>
+<thead>
+<tr>
+<th>Permission</th>
+<th>Grants</th>
+<th>Typical holder</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reports.view</code> / <code>reports.resolve</code></td>
+<td>Read and resolve the moderation queue</td>
+<td>Moderator</td>
+</tr>
+<tr>
+<td><code>chat.remove</code> / <code>chat.mute</code></td>
+<td>Remove messages, temporarily mute</td>
+<td>Moderator</td>
+</tr>
+<tr>
+<td><code>comments.moderate</code></td>
+<td>Remove or restore comments</td>
+<td>Moderator</td>
+</tr>
+<tr>
+<td><code>users.warn</code> / <code>users.suspend</code> / <code>users.ban</code></td>
+<td>Enforcement actions</td>
+<td>Moderator (warn/suspend), Admin (ban)</td>
+</tr>
+<tr>
+<td><code>appeals.review</code></td>
+<td>Decide appeals</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>catalogue.manage</code></td>
+<td>Edit, hide, unlist, recategorise projects</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>catalogue.feature</code></td>
+<td>Feature/unfeature on the homepage</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>announcements.manage</code></td>
+<td>Global announcements</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>dles.*</code></td>
+<td>Live event operations (see Chapter 11)</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>settings.manage</code></td>
+<td>Platform settings, maintenance mode</td>
+<td>Admin</td>
+</tr>
+<tr>
+<td><code>github.manage</code></td>
+<td>GitHub integration state</td>
+<td>Admin + Owner approval</td>
+</tr>
+<tr>
+<td><code>deployments.manage</code></td>
+<td>Trigger or retry deployments</td>
+<td>Admin, only where explicitly granted</td>
+</tr>
+<tr>
+<td><code>staff.manage</code></td>
+<td>Appoint/remove staff, change permissions</td>
+<td><strong>Owner only</strong> by default</td>
+</tr>
+<tr>
+<td><code>recovery.assist</code></td>
+<td>Staff-assisted account recovery</td>
+<td>Owner only</td>
+</tr>
+<tr>
+<td><code>audit.view</code></td>
+<td>Read audit logs</td>
+<td>Admin</td>
+</tr>
+</tbody>
+</table>
+<p>Rules:</p>
+<ul>
+<li>Deny by default: absence of a grant means refusal, and the API returns a structured <code>permission_denied</code> naming the required capability.</li>
+<li>Role labels never imply permissions; only grants do.</li>
+<li>No self-escalation: a user cannot grant themselves a permission, and an Administrator cannot create another Administrator.</li>
+<li>Owner-only actions return <code>409 target_is_owner</code> when aimed at the Owner, and <code>403</code> when performed by a non-Owner.</li>
+<li>Permission changes take effect on the next request, not the next login, because permissions are read from the database per action.</li>
+</ul>
+<h2>12.3 Admin Panel modules</h2>
+<ul>
+<li><strong>Users</strong> — search, profile view, enforcement history, sessions, delete/anonymise requests.</li>
+<li><strong>Staff</strong> — grants, presets, audit of every change (Owner only).</li>
+<li><strong>Reports</strong> — queue with priority, target snapshot, one-click actions, notes.</li>
+<li><strong>Enforcement</strong> — warnings, mutes, suspensions, bans, appeals.</li>
+<li><strong>Catalogue</strong> — project list, validation errors, hide/unlist, recategorise, feature, merge duplicates.</li>
+<li><strong>GitHub</strong> — repository sync state, webhook health, failed validations, stale scans.</li>
+<li><strong>Deployments</strong> — status per project, logs, retry, rollback.</li>
+<li><strong>DLES</strong> — event control per Chapter 11.</li>
+<li><strong>Announcements</strong> — global banner and inbox messages.</li>
+<li><strong>Settings</strong> — feature flags, rate limits, maintenance mode.</li>
+<li><strong>Audit log</strong> — filterable by actor, action, target, time.</li>
+<li><strong>Health</strong> — dependency status (database, storage, realtime, GitHub), error rate, queue depth.</li>
+</ul>
+<p>There is no build studio, no per-game analytics dashboard, and no code editor in the Admin Panel.</p>
+<h2>12.4 Moderation workflow</h2>
+<p><strong>Report categories:</strong> harassment, hate, spam, impersonation, sexual content, violence, self-harm, illegal content, cheat/malware distribution, stolen work, other.</p>
+<p>Flow:</p>
+<ol>
+<li>Report submitted with category, optional note, and an automatic snapshot of the target content.</li>
+<li>Duplicate reports on the same target and category within 24 hours merge into one thread, incrementing a counter that raises priority.</li>
+<li>Queue ordered by severity, report count, and target risk; automated triage flags obvious spam and new-account brigading.</li>
+<li>A moderator claims a report, which locks it for a short window to avoid double handling.</li>
+<li>Action: dismiss with reason, warn, mute, remove content, suspend (temporary), ban (permanent). Every action requires a reason code; free-text notes are optional.</li>
+<li>The target is notified where policy allows, with the reason category and appeal path. Reporters are told the report was handled, not who did what.</li>
+<li>Appeals are filed within 30 days, reviewed by a different staff member where one is available; the decision and reasoning are recorded.</li>
+<li>Every step is an audit entry: actor, target, action, reason, timestamp, related report id.</li>
+</ol>
+<h2>12.5 Enforcement effects on other systems</h2>
+<table>
+<thead>
+<tr>
+<th>Enforcement</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Warning</td>
+<td>Recorded; may restrict posting after repeats.</td>
+</tr>
+<tr>
+<td>Mute</td>
+<td>Chat/comment posting blocked until expiry; reading continues.</td>
+</tr>
+<tr>
+<td>Suspension</td>
+<td>Login allowed for appeal and settings only; no posting, no XP earned, removed from leaderboards at next snapshot, ratings excluded from aggregates.</td>
+</tr>
+<tr>
+<td>Ban</td>
+<td>Sessions revoked; content hidden pending review; no XP; excluded from all boards and public counts.</td>
+</tr>
+<tr>
+<td>Owner action</td>
+<td>Same as above, but cannot target the Owner and requires a second confirmation.</td>
+</tr>
+</tbody>
+</table>
+<p>Lifting enforcement restores participation immediately and restores aggregates at the next recalculation, with an audit record of the change.</p>
+<h2>12.6 Staff safety</h2>
+<ul>
+<li>All staff require a second factor; the Owner requires a passkey.</li>
+<li>Staff sessions expire faster (12 hours) than member sessions.</li>
+<li>Every privileged endpoint validates: authenticated session, non-revoked, permission grant present, target not protected, request same-origin, and a rate limit.</li>
+<li>Sensitive actions (bans, deletions, permission changes) require a confirmation dialog stating the exact consequence.</li>
+<li>Removing a staff member revokes their grants and sessions; the audit entry names the remover.</li>
+<li>If a staff account is suspended or deleted, its grants are removed and its in-flight privileged sessions are revoked.</li>
+<li>Access to private data is itself logged, including moderator reads of reported conversations.</li>
+</ul>
+<h2>12.7 Audit log requirements</h2>
+<p>Append-only, written by the server, never editable from the UI. Each row: <code>actor_id</code>, <code>action</code>, <code>target_type</code>, <code>target_id</code>, <code>reason_code</code>, <code>metadata</code> (previous and new values where relevant), <code>ip_hash</code>, <code>created_at</code>. Retention per Chapter 13. Audit rows survive account deletion with the actor replaced by an immutable id, so history cannot be rewritten by deleting an account.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="sdk-dles.html"><span>Previous</span><strong>SDK & Live Events (DLES)</strong></a>
+<a class="pager-link next" href="security.html"><span>Next</span><strong>Security, Privacy & Media Policy</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
