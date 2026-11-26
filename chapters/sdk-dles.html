@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SDK & Live Events (DLES) — DuckyDrive Master Specification</title>
+<meta name="description" content="Capability manifests, trusted game-server reporting, and a global event coordinator with an emergency stop.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link is-active" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 11 · Sections 27-28</p>
+<h1>SDK & Live Events (DLES)</h1>
+<p class="lede">Games declare what they support. DuckyDrive never assumes a capability and never sends arbitrary code.</p>
+</header>
+<div class="prose">
+<h2>11.1 SDK scope</h2>
+<p>The DuckyDrive SDK is a JavaScript library with an extensible shape for future languages. It lets a game:</p>
+<ul>
+<li>identify itself and its version to the platform,</li>
+<li>report play sessions for statistics and XP eligibility,</li>
+<li>declare supported capabilities,</li>
+<li>receive authenticated event instructions from the backend,</li>
+<li>acknowledge event actions and report status,</li>
+<li>surface approved rewards through server-validated grants,</li>
+<li>report compatibility so the platform can refuse unsupported features.</li>
+</ul>
+<p>It does <strong>not</strong> let a game grant itself XP, rewards, staff powers, event permissions or limits. It does not accept remote code, injected scripts, or arbitrary client control instructions beyond declared capabilities.</p>
+<h2>11.2 Trust boundaries</h2>
+<table>
+<thead>
+<tr>
+<th>Actor</th>
+<th>Trust</th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Browser game client</td>
+<td>Untrusted</td>
+<td>Can request; cannot decide. All rewards and XP validated server-side.</td>
+</tr>
+<tr>
+<td>Game server (if present)</td>
+<td>Scoped credential</td>
+<td>Signs session and event acknowledgements; replay-protected.</td>
+</tr>
+<tr>
+<td>DuckyDrive Edge Function</td>
+<td>Trusted</td>
+<td>Holds the service role, validates, writes the ledger.</td>
+</tr>
+<tr>
+<td>Staff operator</td>
+<td>Authenticated + permission-checked</td>
+<td>Every action logged with reason.</td>
+</tr>
+</tbody>
+</table>
+<p>Session reporting uses an idempotency key per session, an expiry, and a minimum duration before a play counts. Play counts are deduplicated against the session fingerprint, so refreshing a page does not inflate statistics.</p>
+<h2>11.3 Capability manifest</h2>
+<p>A game declares support in <code>duckydrive.json</code> and confirms it at handshake:</p>
+<pre><code class="language-json">{
+  &quot;capabilities&quot;: {
+    &quot;sdk&quot;: &quot;1.0&quot;,
+    &quot;playSessions&quot;: true,
+    &quot;liveEvents&quot;: [&quot;announcement&quot;, &quot;visual-weather&quot;, &quot;audio-music&quot;, &quot;reward-item&quot;],
+    &quot;limits&quot;: { &quot;maxParticles&quot;: 400, &quot;maxEntitySpawns&quot;: 25, &quot;maxAnnouncementSeconds&quot;: 30 }
+  }
+}
+</code></pre>
+<p>The platform keeps the declared list server-side. A DLES action for an undeclared capability is rejected with <code>422 capability_not_declared</code> and never retried against that game.</p>
+<h2>11.4 DLES overview</h2>
+<p><strong>DuckyDrive Live Events System</strong> lets authorised staff run global live events in supported games.</p>
+<p>Confirmed behaviour:</p>
+<ul>
+<li><strong>Scope: global.</strong> An event applies to every active server of that game.</li>
+<li><strong>Scheduling: manual.</strong> Staff start and stop events. No automatic, recurring or cron-scheduled starts exist anywhere in the system.</li>
+<li><strong>Announcements:</strong> a banner at the top of the screen with chosen text, an approved colour for the announcement type, display duration, optional sound, and an optional countdown. Never a centre-screen takeover.</li>
+<li><strong>Audio:</strong> developer-approved tracks and effects only; volume, queueing, synchronisation with announcements, and a stop-all-audio control.</li>
+<li><strong>Visual effects:</strong> weather, lighting, particles, screen effects, environmental effects, fireworks, celebrations — all bounded by developer-declared intensity and duration limits, and restorable.</li>
+<li><strong>NPC/object spawning:</strong> allowed entity types, amount, location, behaviour presets and despawn timing within declared bounds.</li>
+<li><strong>Rewards:</strong> approved items, collectibles, currency, equipment or custom rewards; eligibility by all eligible online players, a specific player, or objective completion; duplicate-protected and audited.</li>
+<li><strong>Temporary player controls:</strong> approved teleport locations, temporary abilities, transformations, speed modifiers, event protection and team management. All expire automatically.</li>
+<li><strong>Emergency global stop</strong> is always available and immediately ends effects and audio.</li>
+</ul>
+<p>Messages can be queued. Only capabilities the developer approved may be invoked. Admins cannot execute arbitrary code.</p>
+<h2>11.5 Coordinator architecture</h2>
+<pre><code>Admin Panel (DLES module)
+   │ start / action / stop  (staff auth + permission + confirmation)
+   ▼
+Event Coordinator (Edge Function)
+   ├─ validates capability against manifest and current limits
+   ├─ writes dles_events / dles_actions (queued)
+   ├─ fan-out to active game servers (authenticated, ordered per event)
+   ├─ collects acknowledgements, tracks per-server state
+   ├─ retries idempotently with expiry on each action
+   └─ writes audit + reward ledger entries
+</code></pre>
+<p>Rules the coordinator enforces:</p>
+<ul>
+<li>An event id is unique and single-use; starting an already-active event is a <code>409</code>, not a duplicate start.</li>
+<li>Each action carries an idempotency key and an expiry; a late server receives the action only if it has not expired.</li>
+<li>A server that disconnects mid-event is tracked as <code>unreachable</code>; on reconnect it receives the current event state and pending restorable actions.</li>
+<li>A server that starts <strong>during</strong> an active event receives the current state on handshake, so events are globally consistent without replay storms.</li>
+<li>Partial fan-out failures are reported per server and shown in the dashboard, with retry available per server.</li>
+<li>Stopping an event while some servers are unreachable marks those servers <code>pending_restore</code> and continues retrying restore on a bounded schedule.</li>
+<li>Rollback restores environment and temporary state where the game supports it; where it does not, the dashboard states the limitation rather than pretending.</li>
+</ul>
+<h2>11.6 Reward integrity</h2>
+<p>Rewards are written once per <code>(event_id, user_id, item)</code> — a database constraint, not a client check. High-impact grants (rare items, currency) require an explicit confirmation in the dashboard naming the target and quantity. Every grant records actor, event, target, item and timestamp. A reward claim from a game client is never trusted on its own; the game server signs the claim.</p>
+<h2>11.7 Permissions for DLES</h2>
+<p><code>dles.view</code>, <code>dles.announce</code>, <code>dles.audio</code>, <code>dles.visual</code>, <code>dles.spawn</code>, <code>dles.reward</code>, <code>dles.player_controls</code>, <code>dles.emergency_stop</code>. Emergency stop is available to anyone with <code>dles.view</code> as a safety override, and is always logged with the actor.</p>
+<h2>11.8 Dashboard</h2>
+<p>Inside the Admin Panel — not a separate Developer Studio. Shows supported game, event state, live player count where the game reports it, per-capability controls gated by availability, queued actions, activity log, per-server status and the emergency stop. Unsupported capabilities appear disabled with the reason, so an operator never believes an action succeeded when the game never claimed it.</p>
+<h2>11.9 Freebuff workflow</h2>
+<p>When asked to add SDK support or DLES handling to a game, Freebuff reads this specification, adds only the required integration, updates <code>duckydrive.json</code> capabilities, runs the project's checks, and explains the changed files and risks. A human owner or contributor reviews and approves before publishing; GitHub Actions performs final checks and deployment. Freebuff never deploys on its own initiative.</p>
+<blockquote>
+<p>Not every game can support every effect. A game that does not implement and declare a capability simply does not receive it, and the interface says so.</p>
+</blockquote>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="backend.html"><span>Previous</span><strong>Supabase, Database & Service Contracts</strong></a>
+<a class="pager-link next" href="admin.html"><span>Next</span><strong>Admin Panel, Staff Roles & Moderation</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
