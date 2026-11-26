@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GitHub Integration, Deployments & Auto-Publishing — DuckyDrive Master Specification</title>
+<meta name="description" content="Repository discovery, webhook handling, validation gates, and safe per-game Pages deployment.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link is-active" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 08 · Sections 20-22</p>
+<h1>GitHub Integration, Deployments & Auto-Publishing</h1>
+<p class="lede">GitHub is the source of truth. Discovery is automatic, publishing is automatic <strong>after validation</strong>, and validation never executes repository code.</p>
+</header>
+<div class="prose">
+<h2>8.1 Sources of discovery</h2>
+<p>Two sources, one pipeline:</p>
+<ol>
+<li>Repositories in the DuckyDrive GitHub organisation/account.</li>
+<li>Repositories of GitHub accounts explicitly connected by contributors, limited to the scope the contributor selected.</li>
+</ol>
+<p>A GitHub username typed into a profile is never treated as identity proof. Connected-account consent is explicit, minimal-scope, and revocable at any time with an immediate effect on discovery and editing rights.</p>
+<h2>8.2 Events and schedule</h2>
+<table>
+<thead>
+<tr>
+<th>Trigger</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>repository</code> events</td>
+<td>Creation, deletion, rename, transfer, visibility change.</td>
+</tr>
+<tr>
+<td><code>release</code> events</td>
+<td>Published, edited, deleted, prerelease flag changes.</td>
+</tr>
+<tr>
+<td><code>push</code> events</td>
+<td>Detect meaningful update activity when no release exists.</td>
+</tr>
+<tr>
+<td>Daily reconciliation scan</td>
+<td>Recover from missed webhooks, detect drift, verify access.</td>
+</tr>
+<tr>
+<td>Manual resync</td>
+<td>Staff or owner action for a specific project.</td>
+</tr>
+</tbody>
+</table>
+<p>Webhook handling rules:</p>
+<ul>
+<li>Verify the signature on the raw body before parsing.</li>
+<li>Persist the event with its delivery id and make processing idempotent on that id.</li>
+<li>Process asynchronously, with retries and a dead-letter record after repeated failure.</li>
+<li>Handle out-of-order delivery by comparing event timestamps against the stored sync state rather than assuming arrival order.</li>
+<li>Treat duplicate deliveries as no-ops.</li>
+<li>Record <code>last_successful_scan</code> per repository and surface stale sync in the Admin Panel.</li>
+</ul>
+<h2>8.3 What is inspected</h2>
+<p><code>duckydrive.json</code> (preferred), README, GitHub topics, <code>package.json</code>, HTML metadata, build configuration, GitHub Pages configuration, release metadata, repository visibility and access permissions.</p>
+<p>Signals are weighted, not blindly trusted. Conflicts resolve to the most specific source: metadata file, then release, then topics, then README heuristics — and a conflict that cannot be resolved leaves the field unset rather than guessed.</p>
+<p><strong>Security:</strong> repository content is untrusted input. Discovery parses data; it never executes repository scripts, never evaluates expressions from the repo, and never runs a build during discovery. Builds happen only in controlled CI with isolated permissions.</p>
+<h2>8.4 Validation gate</h2>
+<p>A discovered project becomes public only when all checks pass:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Failure behaviour</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Repository is public (or explicitly published by an authorised owner)</td>
+<td>Withheld.</td>
+</tr>
+<tr>
+<td><code>duckydrive.json</code> parses against the schema (or is absent and minimal metadata is derivable)</td>
+<td>Withheld with a validation error recorded.</td>
+</tr>
+<tr>
+<td>Required fields present: name, description, type</td>
+<td>Withheld.</td>
+</tr>
+<tr>
+<td>Project type recognised and not contradictory</td>
+<td>Left uncategorised.</td>
+</tr>
+<tr>
+<td>Project is not obviously unfinished (empty repo, template placeholder, no entry point for a game)</td>
+<td>Withheld.</td>
+</tr>
+<tr>
+<td>URLs are safe: same-origin paths or https, no <code>javascript:</code>, no data URLs</td>
+<td>Withheld.</td>
+</tr>
+<tr>
+<td>Thumbnail and screenshots resolve to allowed hosts and formats</td>
+<td>Field dropped, project may still publish.</td>
+</tr>
+<tr>
+<td>No duplicate identity (same repository already mapped to another project)</td>
+<td>Merged or flagged, not duplicated.</td>
+</tr>
+<tr>
+<td>Repository still accessible to the scanner</td>
+<td>Withheld and marked <code>access_lost</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Failures are recorded per check with a machine code and a human sentence, visible in the Admin Panel. There is <strong>no default manual approval queue</strong> — passing projects publish automatically.</p>
+<h2>8.5 Losing validity later</h2>
+<p>When a published project later fails validation (repository made private, deleted, renamed without redirect, deployment broken, metadata corrupted):</p>
+<ol>
+<li>Set <code>visibility = withheld</code> and keep the record for audit and restoration.</li>
+<li>Remove it from all public catalogue surfaces, search and trending within one catalogue refresh.</li>
+<li>Preserve favourites, ratings and stats but do not display the project page publicly.</li>
+<li>Show the owner a clear reason in their own project view.</li>
+<li>Restore automatically when validation passes again, with the original discovery date kept.</li>
+</ol>
+<h2>8.6 Game deployment model</h2>
+<p>Every game is its own repository. Each deploys to its own folder on the same domain:</p>
+<pre><code>https://duckydrive.github.io/            main application (this repository)
+https://duckydrive.github.io/game-one/   game one deployment
+https://duckydrive.github.io/game-two/   game two deployment
+</code></pre>
+<p>Rules that prevent collisions:</p>
+<ul>
+<li>Each game workflow publishes only to <code>/&lt;its-declared-slug&gt;/</code> and never to <code>/</code>.</li>
+<li>The slug is declared in <code>duckydrive.json</code> and reserved in the platform database; duplicates are rejected at validation.</li>
+<li>Assets must be referenced <strong>relative</strong> (<code>./assets/...</code>) or with the declared base path. Absolute <code>/assets/...</code> references are a validation error for game builds because they resolve to the main application's files.</li>
+<li>SPA fallback is per-folder: a game that needs routing ships its own <code>404.html</code> or uses hash routing. The main application must not own a catch-all that swallows game routes.</li>
+<li>Deployments are atomic: upload to a staging path or commit to a <code>gh-pages</code> branch that only serves that folder, so a failed build never leaves a half-published game.</li>
+<li>The catalogue marks a deployment live only after GitHub Pages reports a completed build <strong>and</strong> a smoke fetch of <code>/&lt;slug&gt;/</code> returns 200 with the expected entry document.</li>
+<li>Versioned assets are cached long; the entry HTML is cached short. A new release invalidates through the HTML reference, not through a cache purge API.</li>
+</ul>
+<p>The main repository and each game run the same required checks: metadata validation, build, output path validation, forbidden-absolute-path scan, and a post-deploy smoke test.</p>
+<h2>8.7 Releases and update history</h2>
+<ul>
+<li><strong>GitHub Releases are the primary source</strong> of version, date and notes.</li>
+<li>Commit history is a fallback only when a project has no releases, and the UI labels it accordingly ("No releases published; showing recent commits").</li>
+<li>Drafts are ignored. Prereleases are stored and shown with a prerelease badge but do not become "latest stable".</li>
+<li>Deleting a release removes it from update history and recomputes the latest version; the deletion is audited.</li>
+<li>Failed deployments do not produce a public update entry: a release is recorded as public only when its deployment, if any, is confirmed.</li>
+<li>Every game page shows an Update History section, newest first, with the latest entry highlighted.</li>
+</ul>
+<h2>8.8 Permissions model for editing</h2>
+<table>
+<thead>
+<tr>
+<th>Capability</th>
+<th>Required proof</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Discover a repository</td>
+<td>Public repository, or contributor consent for that repository.</td>
+</tr>
+<tr>
+<td>Edit project metadata</td>
+<td>Owner, or verified GitHub repository permission (<code>admin</code>/<code>maintain</code>/<code>push</code>) checked server-side at action time.</td>
+</tr>
+<tr>
+<td>Trigger deployment</td>
+<td>Same as edit, plus deployment permission explicitly granted.</td>
+</tr>
+<tr>
+<td>Hide/feature a project</td>
+<td>Staff catalogue permission.</td>
+</tr>
+<tr>
+<td>Manage GitHub integration for the org</td>
+<td>Staff permission + Owner approval.</td>
+</tr>
+</tbody>
+</table>
+<p>Admin status alone never grants game editing. Permission is re-checked on every privileged action rather than cached in a session claim, so revocation on GitHub takes effect at the next action. Revoking GitHub access removes editing permission immediately; the project remains published, attributed to the repository's current collaborators.</p>
+<h2>8.9 Rate limits and resilience</h2>
+<ul>
+<li>GitHub API calls are made with a token pool, conditional requests (<code>ETag</code>), and a per-installation budget.</li>
+<li>On rate-limit response, jobs are deferred with backoff; the daily scan resumes from the last successful cursor.</li>
+<li>Webhook bursts are queued with per-repository ordering.</li>
+<li>If GitHub is unreachable, the catalogue serves cached data, labels the data as possibly stale, and the Admin Panel shows integration health.</li>
+</ul>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="library.html"><span>Previous</span><strong>Library, Collections, Ratings & Progress</strong></a>
+<a class="pager-link next" href="metadata.html"><span>Next</span><strong>The duckydrive.json Standard</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
