@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roadmap, Acceptance Criteria & Risk — DuckyDrive Master Specification</title>
+<meta name="description" content="Phases with dependencies, exit conditions, per-feature acceptance criteria and the risk register.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link is-active" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 16 · Sections 42-44</p>
+<h1>Roadmap, Acceptance Criteria & Risk</h1>
+<p class="lede">Eleven phases, each with an exit condition. Nothing starts before its prerequisites are met.</p>
+</header>
+<div class="prose">
+<h2>16.1 Minimum viable product</h2>
+<p>The MVP is the smallest version that is genuinely useful without compromising the architecture: a unified shell with catalogue browsing, project detail pages, GitHub discovery with validation, game launching from separate deployments, accounts with favourites and follows, and ratings and comments. Chat, DLES, XP and the Admin Panel follow — the data model already accounts for them, so they are additions rather than redesigns.</p>
+<h2>16.2 Phases</h2>
+<h3>Phase 0 — Requirements validation</h3>
+<p><strong>Objectives:</strong> confirm the six assumptions in Chapter 2. <strong>Deliverables:</strong> a de-risking prototype for username-only auth, a Pages prototype for main app plus one game path, a GitHub App permission probe, a free-tier limit measurement. <strong>Exit:</strong> every assumption marked validated or the fallback chosen. <strong>Risk:</strong> provider limits appear only at scale — measure deliberately. <strong>Do not start:</strong> any product UI.</p>
+<h3>Phase 1 — Foundations</h3>
+<p><strong>Objectives:</strong> repository structure, design system implementation, application shell, CI/CD. <strong>Features:</strong> routing, sidebar/rail/drawer nav, search affordance, theme tokens, component library, build and deploy pipeline, staging environment. <strong>Dependencies:</strong> Phase 0. <strong>Exit:</strong> shell deploys to staging, passes accessibility smoke test, and a game repository deploys to its own path without collision.</p>
+<h3>Phase 2 — Identity and members</h3>
+<p><strong>Objectives:</strong> DuckyDrive ID, profiles, permissions skeleton. <strong>Features:</strong> registration, login, recovery codes, sessions, passkeys/2FA, profile editing, avatar/banner upload with moderation hooks, privacy settings, Owner bootstrap. <strong>Dependencies:</strong> Phase 1. <strong>Exit:</strong> a member can register, log in on two devices, revoke a session, and recover an account with a recovery code; a non-owner cannot take the reserved username.</p>
+<h3>Phase 3 — Catalogue and discovery</h3>
+<p><strong>Objectives:</strong> projects, categories, tags, search, automatic GitHub discovery and validation. <strong>Features:</strong> catalogue surfaces, project pages, filters and sorts, <code>duckydrive.json</code> validation, webhook receiver, daily reconciliation, automatic publishing, hide/unlist controls. <strong>Dependencies:</strong> Phases 1–2. <strong>Exit:</strong> 20 real repositories discovered, 5 deliberately broken ones withheld with recorded reasons, and no private repository listed.</p>
+<h3>Phase 4 — Launch, library and feedback</h3>
+<p><strong>Objectives:</strong> play sessions, update history, favourites, follows, collections, ratings, comments. <strong>Features:</strong> Play action, release history from GitHub Releases, follows, favourites, saved, recently played, collections (public/private/follow/like), ratings with weighting, comments with replies and reports. <strong>Dependencies:</strong> Phase 3. <strong>Exit:</strong> a new release updates the project page within a minute of the webhook; a rating edit recalculates the average; duplicate collection items are impossible.</p>
+<h3>Phase 5 — Social</h3>
+<p><strong>Objectives:</strong> friends, chat, DMs, notifications. <strong>Features:</strong> friend requests, blocks, public rooms with moderation, friend-only DMs, reactions, notifications with categories, quiet hours. <strong>Dependencies:</strong> Phase 2. <strong>Exit:</strong> presence is off by default, chat rejects all attachments, and following a project produces no notification.</p>
+<h3>Phase 6 — Progression</h3>
+<p><strong>Objectives:</strong> XP, achievements, leaderboards, recommendations, trending. <strong>Features:</strong> achievement families and tiers, XP ledger with caps, global/weekly/monthly boards, contributor ranking, trending computation with anti-abuse, recommendation controls. <strong>Dependencies:</strong> Phases 3–4. <strong>Exit:</strong> duplicated XP awards are rejected by the database, and a disabled recommendation setting produces a non-personalised feed.</p>
+<h3>Phase 7 — Administration</h3>
+<p><strong>Objectives:</strong> Admin Panel, moderation, appeals, audit. <strong>Features:</strong> reports queue, enforcement actions, appeals, catalogue management, feature/unlist, announcements, settings, audit viewer, health view. <strong>Dependencies:</strong> Phases 2–4. <strong>Exit:</strong> every action in the required negative test list returns the specified refusal and writes an audit row.</p>
+<h3>Phase 8 — SDK</h3>
+<p><strong>Objectives:</strong> game integration path. <strong>Features:</strong> SDK package, handshake, session reporting, capability declaration, first supported game integrating it end to end. <strong>Dependencies:</strong> Phase 4. <strong>Exit:</strong> a game reports sessions, plays appear in statistics once per session, and a forged reward request is rejected.</p>
+<h3>Phase 9 — DLES</h3>
+<p><strong>Objectives:</strong> global live events. <strong>Features:</strong> coordinator, capability gating, announcements, audio, visual effects, spawning, rewards, temporary controls, emergency stop, dashboard, audit. <strong>Dependencies:</strong> Phase 8. <strong>Exit:</strong> a two-server test game receives a global announcement, survives a server restart mid-event, restores state on stop, and cannot be started twice.</p>
+<h3>Phase 10 — Hardening and launch</h3>
+<p><strong>Objectives:</strong> performance, accessibility, backups, abuse resistance, public launch. <strong>Features:</strong> load test, accessibility audit, restore drill, rate-limit tuning, documentation, launch checklist. <strong>Dependencies:</strong> all prior phases for the surfaces being launched. <strong>Exit:</strong> budgets met on a mid-range phone, restore drill passed, no open critical risk.</p>
+<h2>16.3 Feature acceptance criteria</h2>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Criterion</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Catalogue list</td>
+<td>Anonymous request returns only publicly visible, validated projects, paginated at 24, in the requested sort.</td>
+</tr>
+<tr>
+<td>Project page</td>
+<td>Shows hosting badge, latest version, update history and stats; unverified fields labelled, not guessed.</td>
+</tr>
+<tr>
+<td>Play</td>
+<td>Opens the game's own path full-screen; a project whose deployment is not confirmed shows no Play action.</td>
+</tr>
+<tr>
+<td>Search</td>
+<td>Two-character minimum, debounced, grouped suggestions, filtered server-side, rate limited.</td>
+</tr>
+<tr>
+<td>Trending</td>
+<td>Recomputed hourly from the weighted formula; refresh spam cannot raise a project's score.</td>
+</tr>
+<tr>
+<td>Newly added</td>
+<td>Orders by discovery date, unaffected by repository creation date.</td>
+</tr>
+<tr>
+<td>Follow</td>
+<td>Idempotent, updates follower count, produces no notification.</td>
+</tr>
+<tr>
+<td>Collections</td>
+<td>Owner-only writes, duplicates rejected, public/private respected after toggling.</td>
+</tr>
+<tr>
+<td>Ratings</td>
+<td>One per account, editable, aggregates recalculated, moderated aggregates audited.</td>
+</tr>
+<tr>
+<td>Comments</td>
+<td>Two levels, likes, reports, creator reply marked, tombstones after removal.</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td>Text/reactions only, rate limited, moderated, realtime with polling fallback.</td>
+</tr>
+<tr>
+<td>DMs</td>
+<td>Friend-only, no attachments, unsend window, report snapshots.</td>
+</tr>
+<tr>
+<td>Notifications</td>
+<td>Category-controlled, deduplicated by event key, security alerts always on.</td>
+</tr>
+<tr>
+<td>Achievements</td>
+<td>Granted once, XP ledger append-only, daily caps enforced.</td>
+</tr>
+<tr>
+<td>GitHub discovery</td>
+<td>Signed webhooks, idempotent processing, 24-hour reconciliation, stale sync flagged.</td>
+</tr>
+<tr>
+<td>Publishing</td>
+<td>Publishes on validation pass; withholds on any error code; restores when valid again.</td>
+</tr>
+<tr>
+<td>duckydrive.json</td>
+<td>Minimal file publishes; every documented error code blocks; unknown fields preserved.</td>
+</tr>
+<tr>
+<td>Deployments</td>
+<td>Atomic, path-scoped, absolute-path references rejected, smoke test before "live".</td>
+</tr>
+<tr>
+<td>Owner bootstrap</td>
+<td>One-time secret, single Owner, refused when one exists, every attempt logged.</td>
+</tr>
+<tr>
+<td>Permissions</td>
+<td>Deny by default, per-request checks, Owner protected, staff changes audited.</td>
+</tr>
+<tr>
+<td>DLES</td>
+<td>Manual start/stop, capability-gated, idempotent actions, global emergency stop.</td>
+</tr>
+</tbody>
+</table>
+<h2>16.4 Risk register</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider forces email-based auth</td>
+<td>Medium</td>
+<td>High</td>
+<td>Auth adapter prototype in Phase 0; fallback to a session service.</td>
+</tr>
+<tr>
+<td>Free-tier limits reached early</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Measure in Phase 0; cache aggressively; document the upgrade point.</td>
+</tr>
+<tr>
+<td>Pages limits block frequent game deploys</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Reusable workflow, atomic folder deploys, monitor build minutes.</td>
+</tr>
+<tr>
+<td>Metadata quality is poor across projects</td>
+<td>High</td>
+<td>Medium</td>
+<td>Minimal valid file, tolerant warnings, staff correction tools.</td>
+</tr>
+<tr>
+<td>Trending manipulated</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Time weighting, dedupe, new-account weighting, audit of anomalies.</td>
+</tr>
+<tr>
+<td>Scope creep toward a game portal clone</td>
+<td>Medium</td>
+<td>High</td>
+<td>Chapter 2 non-goals are enforced in review.</td>
+</tr>
+<tr>
+<td>Chat abuse at launch</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Slow mode, rate limits, more moderators than rooms.</td>
+</tr>
+<tr>
+<td>Game deployments collide</td>
+<td>Low</td>
+<td>High</td>
+<td>Slug reservation, path validation, absolute-path rejection.</td>
+</tr>
+<tr>
+<td>Secret leakage</td>
+<td>Low</td>
+<td>High</td>
+<td>Server-only secrets, scanning, rotation runbook.</td>
+</tr>
+<tr>
+<td>Accessibility regressions</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Automated axe in CI plus manual passes per phase.</td>
+</tr>
+<tr>
+<td>Backup untested</td>
+<td>Medium</td>
+<td>High</td>
+<td>Quarterly restore drill with verified counts.</td>
+</tr>
+</tbody>
+</table>
+<h2>16.5 What must not start early</h2>
+<ul>
+<li>Chat before moderation tooling exists (Phase 7 pieces are pulled forward into Phase 5 for chat-specific actions).</li>
+<li>DLES before capability manifests and the SDK handshake are proven (Phase 8 before Phase 9).</li>
+<li>Leaderboards before the XP ledger is append-only and capped.</li>
+<li>Any per-game deployment before slug reservation and path validation exist.</li>
+</ul>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="delivery.html"><span>Previous</span><strong>CI/CD, Freebuff Workflow & Operations</strong></a>
+<a class="pager-link next" href="appendices.html"><span>Next</span><strong>Open Questions, Glossary & Appendices</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
