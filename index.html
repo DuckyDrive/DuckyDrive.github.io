@@ -1,240 +1,126 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>DuckyDrive — Master Development Specification</title>
-<meta name="description" content="The complete DuckyDrive master development specification: catalogue, identity, GitHub publishing, live events, security and roadmap." />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="assets/styles.css" />
-<link rel="icon" href="assets/duck.svg" type="image/svg+xml" />
+<meta name="description" content="The complete DuckyDrive master development specification: catalogue, identity, GitHub publishing, live events, security and roadmap.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/styles.css">
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
 <div class="shell">
-  <aside class="sidebar" id="sidebar" aria-label="Specification contents">
-    <div class="brand">
-      <svg class="brand-mark" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 10c0-2 1.6-3.6 3.6-3.6h13c2 0 3.4 1.6 3.4 3.6v9h5.4c2 0 3.6 1.6 3.6 3.6v.4c0 2-1.6 3.4-3.6 3.4H34v4.4c0 6.9-5.6 12.5-12.5 12.5S9 37.7 9 30.8V20h2.6c1.4 0 2.4-.8 2.4-2.2V10Z"/><circle cx="31" cy="19" r="1.8" fill="#060910"/></svg>
-      <div>
-        <span class="brand-name">DuckyDrive</span>
-        <span class="brand-sub">Master Specification</span>
-      </div>
-    </div>
-    <nav class="nav">
-      <a class="nav-link is-active" href="index.html" aria-current="true"><span class="nav-num">01</span><span class="nav-text">Overview &amp; design</span></a>
-      <a class="nav-link" href="product.html"><span class="nav-num">02</span><span class="nav-text">Product areas</span></a>
-      <a class="nav-link" href="platform.html"><span class="nav-num">03</span><span class="nav-text">Platform &amp; operations</span></a>
-      <a class="nav-link" href="operations.html"><span class="nav-num">04</span><span class="nav-text">Delivery &amp; roadmap</span></a>
-    </nav>
-    <div class="sidebar-foot">
-      <p>Version 1.0 · Planning document</p>
-      <p>No application code or deployment is produced by this specification.</p>
-    </div>
-  </aside>
-  <div class="main-wrap">
-    <header class="topbar">
-      <button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-      </button>
-      <a class="topbar-title" href="index.html">DuckyDrive <span>/ spec</span></a>
-      <a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a>
-    </header>
-    <main id="main">
-      <section class="hero">
-        <div class="hero-glow" aria-hidden="true"></div>
-        <p class="eyebrow">Master Development Specification · v1.0</p>
-        <h1>A gaming and project-discovery platform, <em>specified end to end.</em></h1>
-        <p class="lede">DuckyDrive is one unified application: a catalogue of games, sites, software and repositories, a username-only identity system, a GitHub-powered publishing pipeline, and a staff-run live events layer. This blueprint defines all of it before a line of product code is written.</p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#decisions">Read the decisions <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-          <a class="btn btn-ghost" href="product.html">Product areas</a>
-          <a class="btn btn-ghost" href="operations.html#roadmap">Roadmap</a>
-        </div>
-        <dl class="stats">
-          <div><dt>47</dt><dd>required sections</dd></div>
-          <div><dt>11</dt><dd>delivery phases</dd></div>
-          <div><dt>16</dt><dd>locked decisions</dd></div>
-          <div><dt>1</dt><dd>unified application</dd></div>
-        </dl>
-      </section>
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="index.html"><img class="brand-mark" src="assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link is-active" href="index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<section class="hero">
+<div class="hero-glow" aria-hidden="true"></div>
+<p class="eyebrow">Master Development Specification · v1.0</p>
+<h1>A gaming and project-discovery platform, <em>specified end to end.</em></h1>
+<p class="lede">DuckyDrive is one unified application with a catalogue of games, sites, software and repositories; a username-only identity system; and a GitHub-powered publishing pipeline. This blueprint defines the whole of it before a line of product code is written.</p>
+<div class="hero-actions">
+<a class="btn btn-primary" href="chapters/executive-summary.html">Start reading <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+<a class="btn btn-ghost" href="chapters/roadmap.html">See the roadmap</a>
+</div>
+<dl class="stats">
+<div><dt>47</dt><dd>required sections</dd></div>
+<div><dt>17</dt><dd>chapters</dd></div>
+<div><dt>11</dt><dd>delivery phases</dd></div>
+<div><dt>1</dt><dd>unified application</dd></div>
+</dl>
+</section>
 
-      <section class="doc" id="summary">
-        <h2><span class="num">Section 01</span>Executive summary &amp; vision</h2>
-        <div class="prose">
-          <p>DuckyDrive is a place to find, play and follow games, websites, software experiments and source repositories. It combines four things usually sold separately: a discovery catalogue, a launch surface for games, a community layer, and a GitHub-powered publishing pipeline.</p>
-          <div class="grid-2">
-            <div class="card"><h4>Discover</h4><p>Browse, search, filter and get recommendations across games, sites, software, experiments and repositories.</p></div>
-            <div class="card"><h4>Play</h4><p>Games live in their own repositories and open full-screen from the catalogue — never inside an embedded player.</p></div>
-            <div class="card"><h4>Belong</h4><p>Accounts, profiles, friends, public chat, private messages, ratings, collections and leaderboards.</p></div>
-            <div class="card"><h4>Publish</h4><p>GitHub is the source of truth for source, releases and deployment; discovery is largely automatic.</p></div>
-          </div>
-          <h3>Audiences</h3>
-          <table>
-            <thead><tr><th>Audience</th><th>What they need from DuckyDrive</th></tr></thead>
-            <tbody>
-              <tr><td>Players</td><td>Find something good quickly, launch it in one click, track what they played and want to play.</td></tr>
-              <tr><td>Creators and contributors</td><td>Publish a project that updates itself from GitHub, without maintaining a separate site and catalogue entry.</td></tr>
-              <tr><td>Owner and staff</td><td>One Admin Panel for catalogue curation, moderation, announcements and live events.</td></tr>
-              <tr><td>Connected GitHub accounts</td><td>Consent-based discovery of validated public projects, with editing rights tied to real repository permissions.</td></tr>
-            </tbody>
-          </table>
-          <h3>The one-application rule</h3>
-          <p>Home, Games, Sites, Repositories, Software, Experiments, Newly Added, Recently Updated, Trending, Following, Chat, Library, Settings and the Admin Panel are <strong>views inside one application shell</strong>. They share one design system, session, router and backend. Games are the deliberate exception — separate codebases, separate deployments, separate paths on the same domain.</p>
-          <p>The consequence: "splitting Games into its own site" or "giving Chat its own domain" is never a valid implementation shortcut. If a section grows large, it is lazily loaded as a route inside the same shell.</p>
-          <div class="callout"><strong>Scope note.</strong> This is a planning document. It writes no application code, creates no platform repository, deploys nothing and configures no provider. Anything needing proof is recorded as a validation task, not presented as settled.</div>
-        </div>
-      </section>
+<section class="block">
+<div class="block-head">
+<h2>Contents</h2>
+<label class="card-filter"><span class="sr-only">Filter chapters</span><input id="card-filter" type="search" placeholder="Search chapters…" autocomplete="off"></label>
+</div>
+<div class="chapter-grid" id="chapter-grid">
+<a class="chapter-card" href="chapters/executive-summary.html" data-title="executive summary & vision what duckydrive is, who it serves, and the one-application rule that shapes everything else."><span class="card-top"><span class="card-num">01</span><span class="card-refs">Sections 1-3</span></span><h3>Executive Summary & Vision</h3><p>What DuckyDrive is, who it serves, and the one-application rule that shapes everything else.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/confirmed-decisions.html" data-title="confirmed decisions & non-goals the decisions that are locked, the defaults chosen for speed, and the features explicitly rejected."><span class="card-top"><span class="card-num">02</span><span class="card-refs">Sections 4-5</span></span><h3>Confirmed Decisions & Non-Goals</h3><p>The decisions that are locked, the defaults chosen for speed, and the features explicitly rejected.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/design-system.html" data-title="design system, navigation & ux colour tokens, type scale, spacing, states and the collapsible sidebar shell."><span class="card-top"><span class="card-num">03</span><span class="card-refs">Sections 6-7</span></span><h3>Design System, Navigation & UX</h3><p>Colour tokens, type scale, spacing, states and the collapsible sidebar shell.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/catalogue.html" data-title="catalogue, search & discovery categories, tags, filters, trending maths, and how hosting status stays separate from project type."><span class="card-top"><span class="card-num">04</span><span class="card-refs">Sections 8, 18, 19</span></span><h3>Catalogue, Search & Discovery</h3><p>Categories, tags, filters, trending maths, and how hosting status stays separate from project type.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/accounts.html" data-title="duckydrive id, profiles & privacy username-only accounts, recovery codes, the reserved owner name, and profile visibility controls."><span class="card-top"><span class="card-num">05</span><span class="card-refs">Sections 10-11</span></span><h3>DuckyDrive ID, Profiles & Privacy</h3><p>Username-only accounts, recovery codes, the reserved Owner name, and profile visibility controls.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/social.html" data-title="friends, chat, messaging & notifications friend graph, public rooms, friend-only dms, and a notification inbox without update spam."><span class="card-top"><span class="card-num">06</span><span class="card-refs">Sections 12-14</span></span><h3>Friends, Chat, Messaging & Notifications</h3><p>Friend graph, public rooms, friend-only DMs, and a notification inbox without update spam.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/library.html" data-title="library, collections, ratings & progress favourites, collections, one-rating-per-account reviews, xp, achievements and leaderboards."><span class="card-top"><span class="card-num">07</span><span class="card-refs">Sections 15-17</span></span><h3>Library, Collections, Ratings & Progress</h3><p>Favourites, collections, one-rating-per-account reviews, XP, achievements and leaderboards.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/github.html" data-title="github integration, deployments & auto-publishing repository discovery, webhook handling, validation gates, and safe per-game pages deployment."><span class="card-top"><span class="card-num">08</span><span class="card-refs">Sections 20-22</span></span><h3>GitHub Integration, Deployments & Auto-Publishing</h3><p>Repository discovery, webhook handling, validation gates, and safe per-game Pages deployment.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/metadata.html" data-title="the duckydrive.json standard the small metadata contract every duckydrive game carries, with examples and validation rules."><span class="card-top"><span class="card-num">09</span><span class="card-refs">Section 23</span></span><h3>The duckydrive.json Standard</h3><p>The small metadata contract every DuckyDrive game carries, with examples and validation rules.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/backend.html" data-title="supabase, database & service contracts planned relational schema, row level security expectations and the api boundaries."><span class="card-top"><span class="card-num">10</span><span class="card-refs">Sections 24-26</span></span><h3>Supabase, Database & Service Contracts</h3><p>Planned relational schema, Row Level Security expectations and the API boundaries.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/sdk-dles.html" data-title="sdk & live events (dles) capability manifests, trusted game-server reporting, and a global event coordinator with an emergency stop."><span class="card-top"><span class="card-num">11</span><span class="card-refs">Sections 27-28</span></span><h3>SDK & Live Events (DLES)</h3><p>Capability manifests, trusted game-server reporting, and a global event coordinator with an emergency stop.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/admin.html" data-title="admin panel, staff roles & moderation owner, administrator and moderator permissions, deny-by-default checks, and the moderation queue."><span class="card-top"><span class="card-num">12</span><span class="card-refs">Sections 29-31</span></span><h3>Admin Panel, Staff Roles & Moderation</h3><p>Owner, Administrator and Moderator permissions, deny-by-default checks, and the moderation queue.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/security.html" data-title="security, privacy & media policy the threat model, mitigations, data lifecycle and the strict no-attachments chat rule."><span class="card-top"><span class="card-num">13</span><span class="card-refs">Sections 32-34</span></span><h3>Security, Privacy & Media Policy</h3><p>The threat model, mitigations, data lifecycle and the strict no-attachments chat rule.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/quality.html" data-title="performance, accessibility & qa budgets, indexing, realtime limits, accessibility requirements and the negative test suite."><span class="card-top"><span class="card-num">14</span><span class="card-refs">Sections 35-37</span></span><h3>Performance, Accessibility & QA</h3><p>Budgets, indexing, realtime limits, accessibility requirements and the negative test suite.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/delivery.html" data-title="ci/cd, freebuff workflow & operations branches, required checks, deployment strategy, monitoring, incident response and backups."><span class="card-top"><span class="card-num">15</span><span class="card-refs">Sections 38-41</span></span><h3>CI/CD, Freebuff Workflow & Operations</h3><p>Branches, required checks, deployment strategy, monitoring, incident response and backups.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/roadmap.html" data-title="roadmap, acceptance criteria & risk phases with dependencies, exit conditions, per-feature acceptance criteria and the risk register."><span class="card-top"><span class="card-num">16</span><span class="card-refs">Sections 42-44</span></span><h3>Roadmap, Acceptance Criteria & Risk</h3><p>Phases with dependencies, exit conditions, per-feature acceptance criteria and the risk register.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+<a class="chapter-card" href="chapters/appendices.html" data-title="open questions, glossary & appendices the validation register, definitions, example metadata, api contracts and proposed tables."><span class="card-top"><span class="card-num">17</span><span class="card-refs">Sections 45-47</span></span><h3>Open Questions, Glossary & Appendices</h3><p>The validation register, definitions, example metadata, API contracts and proposed tables.</p><span class="card-go">Read chapter <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+</div>
+<p class="empty-state" id="card-empty" hidden>No chapter matches that search.</p>
+</section>
 
-      <section class="doc" id="decisions">
-        <h2><span class="num">Section 02</span>Confirmed decisions &amp; non-goals</h2>
-        <div class="prose">
-          <p>These are locked. Where anything else appears to conflict, these win and the conflicting text is corrected. Each decision names where it is enforced — a decision without an enforcement point is a wish.</p>
-          <table>
-            <thead><tr><th>#</th><th>Decision</th><th>Enforced by</th></tr></thead>
-            <tbody>
-              <tr><td>D1</td><td>One unified application; sections are internal views.</td><td>Router and build layout; no per-section deployment.</td></tr>
-              <tr><td>D2</td><td>Games are separate repositories deployed to separate paths, opened full-screen.</td><td>Deployment pipeline; launch action.</td></tr>
-              <tr><td>D3</td><td>Username + password accounts with no mandatory email.</td><td>Registration and recovery flows.</td></tr>
-              <tr><td>D4</td><td>Recovery codes are primary; passkeys and TOTP are optional.</td><td>Identity service.</td></tr>
-              <tr><td>D5</td><td>The username <code>DuckyDrive</code> is reserved for the Owner.</td><td>Uniqueness check on registration.</td></tr>
-              <tr><td>D6</td><td>No general Developer staff role.</td><td>Permission model — the role does not exist.</td></tr>
-              <tr><td>D7</td><td>Game editing requires verified GitHub repository permission.</td><td>GitHub check on every edit action.</td></tr>
-              <tr><td>D8</td><td>No chat or DM attachments, and no external-URL workaround.</td><td>Message schema and validation.</td></tr>
-              <tr><td>D9</td><td>Following a project never produces an update notification.</td><td>Notification rules.</td></tr>
-              <tr><td>D10</td><td>No seasonal competitions or leaderboard resets.</td><td>XP and leaderboard module.</td></tr>
-              <tr><td>D11</td><td>DLES events are started and stopped manually.</td><td>Event coordinator.</td></tr>
-              <tr><td>D12</td><td>No private developer analytics dashboard.</td><td>Product surface inventory.</td></tr>
-              <tr><td>D13</td><td>Valid projects publish automatically after validation.</td><td>Discovery pipeline.</td></tr>
-              <tr><td>D14</td><td>Staff hierarchy is Owner → Administrator → Moderator only.</td><td>Permission model.</td></tr>
-              <tr><td>D15</td><td>In-game announcements are a top banner, never a takeover.</td><td>DLES announcement capability.</td></tr>
-              <tr><td>D16</td><td>The Admin Panel is administration, not a developer studio.</td><td>Admin module list.</td></tr>
-            </tbody>
-          </table>
-          <h3>Explicit non-goals</h3>
-          <ul>
-            <li>A second developer dashboard for analytics, build logs or player funnels.</li>
-            <li>Any chat or DM attachment, including embeds that smuggle in external images.</li>
-            <li>Project-update notifications triggered by following.</li>
-            <li>Seasonal events, resets, or badges that expire with a season.</li>
-            <li>Automatic or recurring DLES schedules.</li>
-            <li>Separate hosted applications for Chat, Library, Settings or Admin.</li>
-            <li>A Developer role that grants game edit rights.</li>
-            <li>Required email collection, or a hidden email recovery path.</li>
-            <li>Embedded game players as the default launch behaviour.</li>
-            <li>Per-project discussion forums; comments and replies cover this.</li>
-            <li>Automatic deployment of private, unfinished, unsupported or unvalidated projects.</li>
-          </ul>
-          <h3>Recommended defaults (reversible)</h3>
-          <table>
-            <thead><tr><th>Area</th><th>Default</th><th>Revisit when</th></tr></thead>
-            <tbody>
-              <tr><td>Backend</td><td>Supabase: Postgres, RLS, Storage, Realtime, Edge Functions</td><td>Prototype shows username-only auth or free-tier limits are unworkable</td></tr>
-              <tr><td>Frontend hosting</td><td>GitHub Pages</td><td>Pages limits block a required feature</td></tr>
-              <tr><td>Releases</td><td>GitHub Releases, commit history as a labelled fallback</td><td>A project has no releases at all</td></tr>
-              <tr><td>Trending window</td><td>14 days, recomputed hourly</td><td>Real data shows the window is wrong</td></tr>
-              <tr><td>Ratings</td><td>1–5 stars, one per account, editable</td><td>Product decision to change scale</td></tr>
-              <tr><td>Comment depth</td><td>Two levels</td><td>Deeper threading is genuinely needed</td></tr>
-              <tr><td>Discovery scan</td><td>Webhooks + 24-hour reconciliation</td><td>Volume or rate limits require change</td></tr>
-              <tr><td>Progression</td><td>Daily XP caps per family</td><td>Abuse data shows the caps are wrong</td></tr>
-            </tbody>
-          </table>
-          <h3>Assumptions to validate before commitment</h3>
-          <ol>
-            <li>Username-only authentication can be implemented securely without a mandatory email identifier.</li>
-            <li>Free-tier limits are sufficient for a prototype and early launch.</li>
-            <li>GitHub Pages can host the main application plus many per-path game deployments.</li>
-            <li>GitHub App permissions allow read-only discovery plus server-side permission checks.</li>
-            <li>Webhook delivery is reliable enough for near-real-time updates.</li>
-            <li>Realtime chat stays within connection and message quotas at expected concurrency.</li>
-          </ol>
-        </div>
-      </section>
+<section class="block">
+<h2>Locked decisions</h2>
+<p class="block-lede">These are confirmed product decisions, not proposals. Every chapter is checked against them.</p>
+<ul class="decision-list">
+<li><strong>One application.</strong> Home, Games, Sites, Repositories, Software, Chat, Library, Settings and Admin are views inside one shell — not separate sites.</li>
+<li><strong>Games ship separately.</strong> Each game is its own repository, deployed to its own path on the same domain and opened full-screen.</li>
+<li><strong>Username-only accounts.</strong> No email required; recovery codes and optional passkeys carry recovery security.</li>
+<li><strong>No Developer staff role.</strong> Game editing requires verified GitHub repository permissions.</li>
+<li><strong>No chat attachments.</strong> Text, emojis and reactions only — no uploads and no external-URL workarounds.</li>
+<li><strong>Following is quiet.</strong> Following a project never produces an update notification.</li>
+<li><strong>Manual live events.</strong> DLES events are started and stopped by staff; no recurring schedules and no seasonal competitions.</li>
+<li><strong>No developer analytics dashboard.</strong> Public statistics only.</li>
+<li><strong>Three staff tiers only.</strong> Owner, Administrator, Moderator — nothing else.</li>
+<li><strong>Auto-publish after validation.</strong> Publishing happens only once the validation gate passes.</li>
+<li><strong>No seasonal resets.</strong> Leaderboards are rolling windows with no reset ceremony and no seasonal badges.</li>
+<li><strong>Banner announcements.</strong> In-game announcements are top-of-screen banners, never centre-screen takeovers.</li>
+</ul>
+</section>
 
-      <section class="doc" id="design">
-        <h2><span class="num">Section 03</span>Design system &amp; navigation</h2>
-        <div class="prose">
-          <p>Gaming meets technology: dark near-black navy, electric lime as the primary accent, neon purple as the secondary, cool-white text, rounded panels, restrained glows. Every value below is a <strong>proposed token</strong>, not a previously approved one.</p>
-          <h3>Colour tokens</h3>
-          <div class="token-row">
-            <div class="token" style="--swatch:#060910"><span class="swatch"></span><strong>Base</strong><code>#060910</code></div>
-            <div class="token" style="--swatch:#0e1626"><span class="swatch"></span><strong>Panel</strong><code>#0e1626</code></div>
-            <div class="token" style="--swatch:#c6ff3d"><span class="swatch"></span><strong>Electric lime</strong><code>#c6ff3d</code></div>
-            <div class="token" style="--swatch:#a855f7"><span class="swatch"></span><strong>Neon purple</strong><code>#a855f7</code></div>
-            <div class="token" style="--swatch:#e8edf7"><span class="swatch"></span><strong>Text</strong><code>#e8edf7</code></div>
-          </div>
-          <table>
-            <thead><tr><th>Token</th><th>Value</th><th>Use</th></tr></thead>
-            <tbody>
-              <tr><td><code>--bg-base</code></td><td><code>#060910</code></td><td>Page background</td></tr>
-              <tr><td><code>--bg-raised</code></td><td><code>#0a0f1a</code></td><td>Sections above the base</td></tr>
-              <tr><td><code>--panel</code></td><td><code>#0e1626</code></td><td>Cards, sidebar, dialogs</td></tr>
-              <tr><td><code>--panel-2</code></td><td><code>#121d31</code></td><td>Inputs, nested panels, hover</td></tr>
-              <tr><td><code>--line</code></td><td><code>rgba(255,255,255,0.08)</code></td><td>Borders and dividers</td></tr>
-              <tr><td><code>--accent-lime</code></td><td><code>#c6ff3d</code></td><td>Primary actions, active state, success</td></tr>
-              <tr><td><code>--accent-purple</code></td><td><code>#a855f7</code></td><td>Secondary accent, featured labels</td></tr>
-              <tr><td><code>--danger</code> / <code>--warning</code></td><td><code>#ff5f6d</code> / <code>#ffc857</code></td><td>Destructive actions, warnings</td></tr>
-              <tr><td><code>--muted</code> / <code>--muted-2</code></td><td><code>#8e9bb3</code> / <code>#66738c</code></td><td>Secondary and tertiary text</td></tr>
-            </tbody>
-          </table>
-          <h3>Typography and spacing</h3>
-          <table>
-            <thead><tr><th>Role</th><th>Font</th><th>Size / line-height</th><th>Weight</th></tr></thead>
-            <tbody>
-              <tr><td>Display</td><td>Space Grotesk</td><td>44/1.1 → 32/1.15</td><td>700</td></tr>
-              <tr><td>H1 / H2 / H3</td><td>Space Grotesk</td><td>32/1.15 · 24/1.25 · 18/1.35</td><td>600</td></tr>
-              <tr><td>Body</td><td>Inter</td><td>16/1.6</td><td>400</td></tr>
-              <tr><td>Label</td><td>Inter</td><td>12/1.4, uppercase, +0.08em</td><td>600</td></tr>
-              <tr><td>Mono</td><td>JetBrains Mono</td><td>13/1.6</td><td>400</td></tr>
-            </tbody>
-          </table>
-          <p>Spacing uses a 4px base (4, 8, 12, 16, 20, 24, 32, 40, 48, 64). Radii: 10px inputs and chips, 16px cards, 24px hero and modals, 999px pills and avatars. Elevation is a dark shadow plus a hairline border, since the palette is dark. Prose is capped near 72 characters per line.</p>
-          <h3>Interaction and feedback states</h3>
-          <table>
-            <thead><tr><th>State</th><th>Treatment</th></tr></thead>
-            <tbody>
-              <tr><td>Default</td><td>Panel background, hairline border, primary text</td></tr>
-              <tr><td>Hover</td><td>Background lifts one step, border strengthens, no layout shift</td></tr>
-              <tr><td>Focus-visible</td><td>2px lime outline, 2px offset, never removed without replacement</td></tr>
-              <tr><td>Pressed</td><td>1px translate down, slightly darker background</td></tr>
-              <tr><td>Disabled</td><td>45% opacity, no hover response, reason in a tooltip</td></tr>
-              <tr><td>Loading</td><td>Skeleton for content, inline spinner for buttons, <code>aria-busy</code></td></tr>
-            </tbody>
-          </table>
-          <p>Empty states explain and offer one action. Errors say what failed and what to do next, are announced with <code>role="alert"</code> and tied to fields. Partial failures label a field "unavailable" instead of blanking the page. Degraded mode shows a persistent, non-blocking banner naming the affected feature.</p>
-          <h3>Application shell</h3>
-          <p>Desktop: a 286px left sidebar that collapses to a 72px icon rail with tooltips and accessible names. Mobile: a slide-out drawer closed by scrim tap, Escape, or route change. Navigation order is Home, Games, Sites, Repositories, Software, Newly Added, Recently Updated, Experiments, Trending, Following, Chat, Library, Settings — with Admin Panel visible only to accounts holding an admin-scoped permission. Search lives in the top bar on every route, opens with <code>/</code> or <code>Ctrl/⌘+K</code>, and returns grouped results for projects, collections, users and rooms.</p>
-          <h3>Homepage composition</h3>
-          <ol>
-            <li><strong>Hero</strong> — one featured project with artwork, name, one-line description, category chips and a Launch/View action. Rotation is manual; no timer, no auto-advance.</li>
-            <li><strong>Continue</strong> — recently played, only when history exists.</li>
-            <li><strong>Trending</strong> — the current 14-day list, category-filterable.</li>
-            <li><strong>Newly added</strong> — recent validated additions.</li>
-            <li><strong>Curated rows</strong> — featured collections and category picks.</li>
-            <li><strong>Discovery strip</strong> — search entry point plus Surprise me.</li>
-          </ol>
-          <h3>Responsive and accessible by default</h3>
-          <table>
-            <thead><tr><th>Breakpoint</th><th>Width</th><th>Layout</th></tr></thead>
-            <tbody>
-              <tr><td><code>sm</code></td><td>&lt; 640</td><td>Single column, drawer nav, 16px gutters</td></tr>
-              <tr><td><code>md</code></td><td>640–1023</td><td>Two-column grids, 24px gutters</td></tr>
-              <tr><td><code>lg</code></td><td>1024–1439</td><td>Expanded sidebar, 2–3 columns</td></tr>
-              <tr><td><code>xl</code></td><td>≥ 1440</td><td>Max 1280px content, 3–4 columns</td></tr>
-            </tbody>
-          </table>
-          <p>Requirements: semantic landmarks and one <code>h1</code> per route, focus order matching visual order, 4.5:1 text contrast and 3:1 for UI boundaries, 44×44px touch targets, <code>prefers-reduced-motion</code> support, focus-trapped dialogs with labelled titles, live regions for async results, and text equivalents for statistics. Effects never come at the cost of access.</p>
-        </div>
-      </section>
-
-      <footer class="site-foot">
-        <p>DuckyDrive Master Development Specification · Version 1.0 · <a href="product.html">Next: product areas</a></p>
-        <p>Planning and documentation only. No application code, repository deployment or provider configuration is performed by this document.</p>
-      </footer>
-    </main>
-    <div class="scrim" id="scrim" hidden></div>
-  </div>
+<section class="block">
+<h2>Design direction</h2>
+<p class="block-lede">Proposed tokens for the product UI, applied here so the document reads the way the platform should feel.</p>
+<div class="token-row">
+<div class="token" style="--swatch:#060910"><span class="swatch"></span><strong>Base</strong><code>#060910</code></div>
+<div class="token" style="--swatch:#0e1626"><span class="swatch"></span><strong>Panel</strong><code>#0e1626</code></div>
+<div class="token" style="--swatch:#c6ff3d"><span class="swatch"></span><strong>Electric lime</strong><code>#c6ff3d</code></div>
+<div class="token" style="--swatch:#a855f7"><span class="swatch"></span><strong>Neon purple</strong><code>#a855f7</code></div>
+<div class="token" style="--swatch:#e8edf7"><span class="swatch"></span><strong>Text</strong><code>#e8edf7</code></div>
+</div>
+</section>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
 </div>
 <script src="assets/app.js"></script>
 </body>
