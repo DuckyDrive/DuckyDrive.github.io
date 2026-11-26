@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Open Questions, Glossary & Appendices — DuckyDrive Master Specification</title>
+<meta name="description" content="The validation register, definitions, example metadata, API contracts and proposed tables.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link is-active" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 17 · Sections 45-47</p>
+<h1>Open Questions, Glossary & Appendices</h1>
+<p class="lede">What is confirmed, what is a default, what needs proof, and what the words mean.</p>
+</header>
+<div class="prose">
+<h2>17.1 Validation register</h2>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Type</th>
+<th>Status</th>
+<th>Decision needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Username-only auth on the provider</td>
+<td>Technical assumption</td>
+<td>Unvalidated</td>
+<td>Ship adapter, or move identity to a session service.</td>
+</tr>
+<tr>
+<td>Free-tier database/storage/realtime limits</td>
+<td>External constraint</td>
+<td>Unvalidated</td>
+<td>Measure in Phase 0; define upgrade trigger.</td>
+</tr>
+<tr>
+<td>GitHub Pages for main app + N game paths</td>
+<td>Technical assumption</td>
+<td>Unvalidated</td>
+<td>Prove two concurrent game deploys in Phase 1.</td>
+</tr>
+<tr>
+<td>GitHub App least-privilege scopes</td>
+<td>Technical assumption</td>
+<td>Unvalidated</td>
+<td>Confirm read-only discovery plus per-action permission checks.</td>
+</tr>
+<tr>
+<td>Webhook reliability without duplicates</td>
+<td>Technical assumption</td>
+<td>Unvalidated</td>
+<td>Idempotency already designed; verify delivery behaviour.</td>
+</tr>
+<tr>
+<td>Realtime concurrency at launch</td>
+<td>External constraint</td>
+<td>Unvalidated</td>
+<td>Load test in Phase 10.</td>
+</tr>
+<tr>
+<td>Trending window of 14 days</td>
+<td>Recommended default</td>
+<td>Provisional</td>
+<td>Review after 30 days of real data.</td>
+</tr>
+<tr>
+<td>Daily XP caps</td>
+<td>Recommended default</td>
+<td>Provisional</td>
+<td>Tune from ledger data.</td>
+</tr>
+<tr>
+<td>Avatar/banner size limit of 2 MB</td>
+<td>Recommended default</td>
+<td>Provisional</td>
+<td>Review against storage budget.</td>
+</tr>
+<tr>
+<td>Whether an optional email may ever be added</td>
+<td>Owner decision</td>
+<td>Not approved</td>
+<td>Not implemented; no hidden path exists.</td>
+</tr>
+</tbody>
+</table>
+<p>Decisions deliberately <strong>not</strong> defaulted (Owner input required): whether to add optional email in future, whether group DMs are ever in scope, and the final choice of paid tier when free limits are reached. Everything else in this document is defaulted so delivery is not blocked.</p>
+<h2>17.2 Glossary</h2>
+<table>
+<thead>
+<tr>
+<th>Term</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>DuckyDrive ID</strong></td>
+<td>The central username-only identity used across the ecosystem.</td>
+</tr>
+<tr>
+<td><strong>Project</strong></td>
+<td>Any catalogue entry: game, site, software, experiment or repository.</td>
+</tr>
+<tr>
+<td><strong>Type</strong></td>
+<td>What a project <em>is</em> (independent of hosting).</td>
+</tr>
+<tr>
+<td><strong>Hosting status</strong></td>
+<td>Whether a project is currently deployed (<code>hosted</code>, <code>not_hosted</code>, <code>deployment_failed</code>, <code>unknown</code>).</td>
+</tr>
+<tr>
+<td><strong>Discovered at</strong></td>
+<td>When DuckyDrive first validated the project.</td>
+</tr>
+<tr>
+<td><strong>Release date</strong></td>
+<td>When the project was first released, per GitHub or metadata.</td>
+</tr>
+<tr>
+<td><strong>Latest release at</strong></td>
+<td>Timestamp of the newest public release; drives "Recently updated".</td>
+</tr>
+<tr>
+<td><strong>Validated</strong></td>
+<td>Passed every check in the publishing gate.</td>
+</tr>
+<tr>
+<td><strong>Withheld</strong></td>
+<td>Keeper record that is not public because validation or visibility failed.</td>
+</tr>
+<tr>
+<td><strong>Favourite</strong></td>
+<td>A bookmark, counted publicly.</td>
+</tr>
+<tr>
+<td><strong>Follow</strong></td>
+<td>Interest in a project's future; never produces notifications.</td>
+</tr>
+<tr>
+<td><strong>Saved</strong></td>
+<td>Private bookmark, not counted publicly.</td>
+</tr>
+<tr>
+<td><strong>Collection</strong></td>
+<td>User-curated list, optionally public.</td>
+</tr>
+<tr>
+<td><strong>Slug</strong></td>
+<td>Lowercase path-safe identifier, reserved platform-wide.</td>
+</tr>
+<tr>
+<td><strong>DLES</strong></td>
+<td>DuckyDrive Live Events System.</td>
+</tr>
+<tr>
+<td><strong>Capability manifest</strong></td>
+<td>The list of event features a game declares it supports.</td>
+</tr>
+<tr>
+<td><strong>SSO</strong></td>
+<td>Single sign-on across DuckyDrive ecosystem sites using DuckyDrive ID.</td>
+</tr>
+<tr>
+<td><strong>RLS</strong></td>
+<td>Row Level Security in Postgres.</td>
+</tr>
+<tr>
+<td><strong>Owner</strong></td>
+<td>The single protected account with ultimate authority.</td>
+</tr>
+</tbody>
+</table>
+<h2>17.3 Appendix A — Example metadata files</h2>
+<p>Minimal:</p>
+<pre><code class="language-json">{ &quot;schema&quot;: 1, &quot;name&quot;: &quot;Neon Drift&quot;, &quot;description&quot;: &quot;A one-button rhythm racer.&quot;, &quot;type&quot;: [&quot;game&quot;], &quot;slug&quot;: &quot;neon-drift&quot; }
+</code></pre>
+<p>Invalid (blocked) — absolute asset path and category outside the vocabulary:</p>
+<pre><code class="language-json">{
+  &quot;schema&quot;: 1,
+  &quot;name&quot;: &quot;Broken&quot;,
+  &quot;description&quot;: &quot;Demonstrates validation failures.&quot;,
+  &quot;type&quot;: [&quot;game&quot;],
+  &quot;slug&quot;: &quot;Broken Game&quot;,
+  &quot;categories&quot;: [&quot;shooter&quot;],
+  &quot;thumbnail&quot;: &quot;/assets/thumb.png&quot;
+}
+</code></pre>
+<p>Expected: <code>E_SLUG_FORMAT</code>, <code>E_CATEGORY_UNKNOWN</code>, <code>E_URL_UNSAFE</code> — project withheld, errors shown to the contributor with exact field paths.</p>
+<h2>17.4 Appendix B — API contract examples</h2>
+<pre><code class="language-http">GET /projects/neon-drift
+Auth: public
+200 {
+  &quot;id&quot;: &quot;…&quot;, &quot;slug&quot;: &quot;neon-drift&quot;, &quot;name&quot;: &quot;Neon Drift&quot;,
+  &quot;types&quot;: [&quot;game&quot;], &quot;hostingStatus&quot;: &quot;hosted&quot;,
+  &quot;launchUrl&quot;: &quot;/neon-drift/&quot;,
+  &quot;latestRelease&quot;: { &quot;version&quot;: &quot;0.4.1&quot;, &quot;publishedAt&quot;: &quot;2026-11-20T10:00:00Z&quot; },
+  &quot;stats&quot;: { &quot;plays&quot;: 1240, &quot;uniquePlayers&quot;: 430, &quot;followers&quot;: 51, &quot;rating&quot;: { &quot;avg&quot;: 4.6, &quot;count&quot;: 38 } }
+}
+404 { &quot;error&quot;: &quot;not_public&quot; }
+</code></pre>
+<pre><code class="language-http">POST /auth/recover
+Auth: public (rate limited 5/hour/IP)
+Body: { &quot;username&quot;: &quot;duckfan&quot;, &quot;recoveryCode&quot;: &quot;AAAA-BBBB-CCCC&quot; }
+200 { &quot;session&quot;: &quot;…&quot;, &quot;mustRotateCodes&quot;: true }
+401 { &quot;error&quot;: &quot;invalid_recovery_code&quot; }
+429 { &quot;error&quot;: &quot;rate_limited&quot;, &quot;retryAfterMs&quot;: 60000 }
+</code></pre>
+<pre><code class="language-http">POST /moderation/reports/{id}/resolve
+Auth: staff with reports.resolve
+Body: { &quot;action&quot;: &quot;remove_content&quot;, &quot;reasonCode&quot;: &quot;harassment&quot;, &quot;note&quot;: &quot;…&quot; }
+200 { &quot;reportId&quot;: &quot;…&quot;, &quot;state&quot;: &quot;resolved&quot;, &quot;auditId&quot;: &quot;…&quot; }
+403 { &quot;error&quot;: &quot;permission_denied&quot;, &quot;required&quot;: &quot;reports.resolve&quot; }
+409 { &quot;error&quot;: &quot;already_resolved&quot; }
+</code></pre>
+<h2>17.5 Appendix C — Diagrams</h2>
+<p>Publishing pipeline:</p>
+<pre><code class="language-mermaid">flowchart LR
+  A[GitHub repo] --&gt;|webhook or daily scan| B[Webhook receiver / scanner]
+  B --&gt; C{Signature + idempotency}
+  C --&gt;|fail| X[Log and drop]
+  C --&gt;|pass| D[Parse duckydrive.json + metadata]
+  D --&gt; E{Validation gate}
+  E --&gt;|error| F[Withheld, reason recorded]
+  E --&gt;|pass| G[Project upsert]
+  G --&gt; H[Catalogue + search index]
+  G --&gt; I[Release history]
+  G --&gt; J[Deployment status check]
+</code></pre>
+<p>Permission check for a game edit:</p>
+<pre><code class="language-mermaid">sequenceDiagram
+  participant U as Contributor
+  participant API as Edge Function
+  participant GH as GitHub API
+  participant DB as Postgres
+  U-&gt;&gt;API: PATCH /projects/{id} (session cookie)
+  API-&gt;&gt;DB: load session → user_id
+  API-&gt;&gt;DB: load project → repository
+  API-&gt;&gt;GH: check repo permission for user's GitHub identity
+  GH--&gt;&gt;API: admin / push / read / none
+  alt permission sufficient
+    API-&gt;&gt;DB: update project + audit row
+    API--&gt;&gt;U: 200
+  else insufficient
+    API--&gt;&gt;U: 403 permission_denied
+  end
+</code></pre>
+<p>DLES lifecycle:</p>
+<pre><code class="language-mermaid">stateDiagram-v2
+  [*] --&gt; Draft
+  Draft --&gt; Active: staff start (manual)
+  Active --&gt; PartiallyActive: some servers unreachable
+  PartiallyActive --&gt; Active: servers reconnect
+  Active --&gt; Stopping: stop or emergency stop
+  PartiallyActive --&gt; Stopping: emergency stop
+  Stopping --&gt; Ended: all restores acknowledged
+  Stopping --&gt; Ended: timeout, unreachable servers flagged
+  Ended --&gt; [*]
+</code></pre>
+<h2>17.6 Appendix D — Proposed tables at a glance</h2>
+<pre><code class="language-sql">-- Illustrative shape only; real migrations are versioned SQL.
+create table projects (
+  id uuid primary key default gen_random_uuid(),
+  slug text not null unique,
+  name text not null,
+  description text not null,
+  overview text,
+  visibility text not null default 'withheld'
+    check (visibility in ('public','withheld','hidden')),
+  hosting_status text not null default 'unknown'
+    check (hosting_status in ('hosted','not_hosted','deployment_failed','unknown')),
+  discovered_at timestamptz not null default now(),
+  latest_release_at timestamptz,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create index projects_visible_new on projects (visibility, discovered_at desc);
+create index projects_visible_updated on projects (visibility, latest_release_at desc);
+
+create table ratings (
+  user_id uuid references users(id) on delete cascade,
+  project_id uuid references projects(id) on delete cascade,
+  score smallint not null check (score between 1 and 5),
+  updated_at timestamptz not null default now(),
+  primary key (user_id, project_id)
+);
+
+create table xp_ledger (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references users(id) on delete cascade,
+  amount integer not null,
+  reason text not null,
+  ref text not null,
+  created_at timestamptz not null default now(),
+  unique (user_id, reason, ref)
+);
+</code></pre>
+<h2>17.7 Consistency review against confirmed decisions</h2>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Where it is enforced</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>One unified application</td>
+<td>Chapters 1, 3 (shell), 15 (single Pages target)</td>
+</tr>
+<tr>
+<td>Games separate, path-scoped</td>
+<td>Chapters 4, 8</td>
+</tr>
+<tr>
+<td>Username-only identity</td>
+<td>Chapter 5, 10 (auth adapter)</td>
+</tr>
+<tr>
+<td>No Developer role</td>
+<td>Chapters 2, 8, 12</td>
+</tr>
+<tr>
+<td>GitHub permission for edits</td>
+<td>Chapters 8, 12, 17 (sequence diagram)</td>
+</tr>
+<tr>
+<td>No chat attachments</td>
+<td>Chapters 2, 6, 13</td>
+</tr>
+<tr>
+<td>Following never notifies</td>
+<td>Chapters 2, 6, 14 (negative test 14)</td>
+</tr>
+<tr>
+<td>No seasonal competitions</td>
+<td>Chapters 2, 7</td>
+</tr>
+<tr>
+<td>Manual DLES only</td>
+<td>Chapters 2, 11</td>
+</tr>
+<tr>
+<td>No developer analytics dashboard</td>
+<td>Chapters 2, 15</td>
+</tr>
+<tr>
+<td>Automatic publishing after validation</td>
+<td>Chapters 2, 8</td>
+</tr>
+<tr>
+<td>Owner → Admin → Moderator only</td>
+<td>Chapters 12</td>
+</tr>
+<tr>
+<td>Banner announcements, not takeover</td>
+<td>Chapter 11</td>
+</tr>
+</tbody>
+</table>
+<h2>17.8 Final statement</h2>
+<p>This document specifies DuckyDrive. It contains no application code, creates no repositories for the platform, deploys nothing and configures no provider. The site it is published on is documentation. Implementation begins with Phase 0, and every phase begins only when its prerequisites have exited successfully.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="roadmap.html"><span>Previous</span><strong>Roadmap, Acceptance Criteria & Risk</strong></a>
+
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
