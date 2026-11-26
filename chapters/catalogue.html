@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Catalogue, Search & Discovery — DuckyDrive Master Specification</title>
+<meta name="description" content="Categories, tags, filters, trending maths, and how hosting status stays separate from project type.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link is-active" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 04 · Sections 8, 18, 19</p>
+<h1>Catalogue, Search & Discovery</h1>
+<p class="lede">Hosting status and project type are separate concepts. A project can be a site *and* a game, and a repository can exist without being deployed.</p>
+</header>
+<div class="prose">
+<h2>4.1 Project model</h2>
+<p>A single <code>projects</code> record backs every catalogue surface. Two independent axes describe it:</p>
+<ul>
+<li><strong>Type</strong> (what kind of project is it): Games, Sites, Software, Experiments, Repositories.</li>
+<li><strong>Hosting status</strong> (is it currently live): <code>hosted</code>, <code>not_hosted</code>, <code>deployment_failed</code>, <code>unknown</code>.</li>
+</ul>
+<p>A project may carry several types. A browser game deployed to a path is <code>Games</code> + <code>Sites</code>. A library with no deployment is <code>Software</code> + <code>Repositories</code>. Filters treat the two axes independently, so "hosted games" and "repositories that are hosted" are different queries.</p>
+<h2>4.2 Categories and tags</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Applies to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rhythm</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Horror</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Platformer</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Multiplayer</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Casual</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Puzzle</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Adventure</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Racing</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Sandbox</td>
+<td>Games</td>
+</tr>
+<tr>
+<td>Other</td>
+<td>Games</td>
+</tr>
+</tbody>
+</table>
+<p>Categories are a controlled vocabulary managed by staff (Admin Panel → Catalogue). Tags are free-form but normalised: lowercase, hyphenated, max 24 characters, max 12 per project, with a blocked list for abusive or misleading terms. Both are many-to-many. Neither is ever used to mean hosting status.</p>
+<h2>4.3 Project detail page</h2>
+<p>Required blocks, in order:</p>
+<ol>
+<li>Name, type chips, hosting badge, latest version and update date.</li>
+<li>Artwork hero with a primary action: <strong>Play</strong> (hosted game), <strong>View site</strong> (hosted non-game), or <strong>View repository</strong> (not hosted).</li>
+<li>Description, then overview.</li>
+<li>Screenshots, keyboard-navigable gallery.</li>
+<li>Update history — version, date, changes, release notes, latest highlighted.</li>
+<li>Categories, tags, supported platforms.</li>
+<li>Creator/developer information and repository link.</li>
+<li>Release date, latest update date, discovery date.</li>
+<li>Favourite, follow, add-to-collection, report.</li>
+<li>Ratings summary and comment thread.</li>
+<li>Public statistics: plays, unique players where measured, followers, average rating, rating count.</li>
+</ol>
+<p>Fields that cannot be verified are labelled "unavailable" rather than estimated silently. See <a href="#">Following and public statistics</a>.</p>
+<h2>4.4 Launch behaviour</h2>
+<p>Selecting <strong>Play</strong> opens the game's own deployment full-screen at its path (<code>/game-slug/</code>), in the same tab by default with an optional "open in new tab" preference. There is no embedded iframe player as the default. The catalogue page encodes which deployment URL is authoritative, and only a validated, currently-live deployment receives a Play action.</p>
+<h2>4.5 Search</h2>
+<p>Search covers project name, description, tags, categories, creator name and platform. It is implemented as:</p>
+<ul>
+<li><strong>Server-side full-text search</strong> over a denormalised search document per project, weighted: name (A), tags/categories (B), description (C), creator (D).</li>
+<li><strong>Minimum query length</strong> of 2 characters; debounce 250ms; results paginated at 24.</li>
+<li><strong>Type-ahead suggestions</strong> limited to 8 items across projects and collections, keyboard navigable.</li>
+<li><strong>Filters</strong> applied server-side: type, category, tag, platform, hosting status, rating range, has-release-history.</li>
+<li><strong>Sorts</strong>: newest, recently updated, most popular, highest rated, most played, A–Z.</li>
+<li><strong>Empty results</strong> offer relaxed filters, not a dead end.</li>
+</ul>
+<p>Rate limits: anonymous 30 searches/minute, authenticated 60/minute, with bursts accounted for by a token bucket.</p>
+<h2>4.6 Trending</h2>
+<p>Trending is <strong>not</strong> lifetime plays. It is a time-weighted engagement score over a 14-day window, recomputed hourly.</p>
+<pre><code>score = 0.45 * norm(recent_plays)
+      + 0.20 * norm(recent_favourites)
+      + 0.15 * norm(recent_ratings)
+      + 0.10 * norm(recent_comments)
+      + 0.10 * norm(growth_rate)
+</code></pre>
+<p>Each component is normalised per category so large categories do not dominate. <code>growth_rate</code> compares the current window with the previous one, capped to avoid a single spike owning the list.</p>
+<p>Anti-abuse:</p>
+<ul>
+<li>Plays are deduplicated by an opaque session fingerprint plus account, with a minimum 60-second gap counted once per hour per project.</li>
+<li>Repeated refreshes do not create plays.</li>
+<li>Rating and favourite bursts from new accounts carry reduced weight for the first 24 hours.</li>
+<li>Accounts under enforcement do not contribute to engagement.</li>
+<li>A metric with insufficient data is excluded from the score rather than defaulting to zero.</li>
+</ul>
+<p>Trending exists overall and per category. Both are materialised so page loads never compute the ranking.</p>
+<h2>4.7 Newly added versus recently updated</h2>
+<table>
+<thead>
+<tr>
+<th>Surface</th>
+<th>Ordering basis</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Newly added</td>
+<td><code>discovered_at</code> (DuckyDrive's first validation)</td>
+<td>Filters for Games, Sites, Software, Repositories.</td>
+</tr>
+<tr>
+<td>Recently updated</td>
+<td>Latest <strong>release</strong> timestamp</td>
+<td>Falls back to commit activity only when a project has no releases, and the row labels the fallback.</td>
+</tr>
+</tbody>
+</table>
+<p><code>repository_created_at</code>, <code>release_date</code> and <code>discovered_at</code> are three distinct fields and are never conflated. A ten-year-old repository added today appears in Newly added, not Recently updated.</p>
+<h2>4.8 Following and discovery lists</h2>
+<p>Following is a saved relationship, not a subscription: the Following list shows followed projects in update order, and <strong>no notification is produced</strong> when a followed project updates. Favouriting (a bookmark), following (interest), and adding to a collection (curation) are three separate actions with separate counts.</p>
+<h2>4.9 Recommendations and "Surprise me"</h2>
+<p>Personalised recommendations use categories of favourited and recently played projects, rating history, and similar-project signals (shared tags, same creator, similar category mix). Every recommendation list exposes a "why this" explanation.</p>
+<p>Users can disable activity-based recommendations in Settings → Privacy. When disabled, the same surfaces render a non-personalised fallback: trending, newly added and staff picks. Disabling does not delete history; it stops that history being read for recommendations.</p>
+<p><strong>Surprise me</strong> selects from a validated, hosted, publicly visible pool using a weighted random pick that down-weights projects already shown this session. It never selects private, unvalidated or broken-deployment projects.</p>
+<h2>4.10 Discovery integrity</h2>
+<p>Every catalogue surface reads only projects where:</p>
+<ul>
+<li>validation passed at least once and has not since failed,</li>
+<li>visibility is public,</li>
+<li>the source repository is public or the project was explicitly published by an authorised contributor,</li>
+<li>the project is not hidden or unlisted by staff.</li>
+</ul>
+<p>Automatic publishing (Chapter 8) supplies records; the catalogue is not a mirror of every repository in existence.</p>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="design-system.html"><span>Previous</span><strong>Design System, Navigation & UX</strong></a>
+<a class="pager-link next" href="accounts.html"><span>Next</span><strong>DuckyDrive ID, Profiles & Privacy</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
