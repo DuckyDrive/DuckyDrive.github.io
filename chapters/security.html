@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security, Privacy & Media Policy — DuckyDrive Master Specification</title>
+<meta name="description" content="The threat model, mitigations, data lifecycle and the strict no-attachments chat rule.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/duck.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="shell">
+<aside class="sidebar" id="sidebar" aria-label="Specification contents">
+<a class="brand" href="../index.html"><img class="brand-mark" src="../assets/duck.svg" alt="" width="38" height="38"><span><span class="brand-name">DuckyDrive</span><span class="brand-sub">Master Specification</span></span></a>
+<div class="nav-search"><label class="sr-only" for="nav-filter">Filter chapters</label><input id="nav-filter" type="search" placeholder="Filter chapters…" autocomplete="off"></div>
+<nav class="nav">
+<a class="nav-link" href="../index.html"><span class="nav-num">00</span>Overview</a>
+<a class="nav-link" href="../chapters/executive-summary.html"><span class="nav-num">01</span>Executive summary</a>
+<a class="nav-link" href="../chapters/confirmed-decisions.html"><span class="nav-num">02</span>Decisions</a>
+<a class="nav-link" href="../chapters/design-system.html"><span class="nav-num">03</span>Design system</a>
+<a class="nav-link" href="../chapters/catalogue.html"><span class="nav-num">04</span>Catalogue</a>
+<a class="nav-link" href="../chapters/accounts.html"><span class="nav-num">05</span>Accounts</a>
+<a class="nav-link" href="../chapters/social.html"><span class="nav-num">06</span>Social</a>
+<a class="nav-link" href="../chapters/library.html"><span class="nav-num">07</span>Library</a>
+<a class="nav-link" href="../chapters/github.html"><span class="nav-num">08</span>GitHub & publishing</a>
+<a class="nav-link" href="../chapters/metadata.html"><span class="nav-num">09</span>duckydrive.json</a>
+<a class="nav-link" href="../chapters/backend.html"><span class="nav-num">10</span>Backend & data</a>
+<a class="nav-link" href="../chapters/sdk-dles.html"><span class="nav-num">11</span>SDK & events</a>
+<a class="nav-link" href="../chapters/admin.html"><span class="nav-num">12</span>Admin & staff</a>
+<a class="nav-link is-active" href="../chapters/security.html"><span class="nav-num">13</span>Security</a>
+<a class="nav-link" href="../chapters/quality.html"><span class="nav-num">14</span>Quality & a11y</a>
+<a class="nav-link" href="../chapters/delivery.html"><span class="nav-num">15</span>Delivery & ops</a>
+<a class="nav-link" href="../chapters/roadmap.html"><span class="nav-num">16</span>Roadmap & risk</a>
+<a class="nav-link" href="../chapters/appendices.html"><span class="nav-num">17</span>Appendices</a>
+</nav>
+<div class="sidebar-foot"><p>Version 1.0 · Planning document</p><p>No product code, credentials or deployments.</p></div>
+</aside>
+<div class="main-wrap">
+<header class="topbar"><button class="icon-btn" id="menu-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="sidebar">&#9776;</button><a class="topbar-title" href="../index.html">DuckyDrive <span>/ spec</span></a><a class="topbar-cta" href="https://github.com/DuckyDrive/DuckyDrive.github.io" target="_blank" rel="noopener">Repository</a></header>
+<main id="main">
+<article class="doc">
+<header class="doc-head">
+<p class="eyebrow">Chapter 13 · Sections 32-34</p>
+<h1>Security, Privacy & Media Policy</h1>
+<p class="lede">The frontend is public and the backend is shared. Anything the browser can be tricked into sending is treated as hostile.</p>
+</header>
+<div class="prose">
+<h2>13.1 Threat model and mitigations</h2>
+<table>
+<thead>
+<tr>
+<th>Threat</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Account takeover / credential stuffing</td>
+<td>Argon2id hashes, breached-password checks, per-account and per-IP throttling, second factor for staff, session list with revocation.</td>
+</tr>
+<tr>
+<td>Session theft</td>
+<td>HTTP-only, Secure, <code>SameSite=Lax</code> cookies; short access tokens; refresh rotation with reuse detection; sessions bound to a device label.</td>
+</tr>
+<tr>
+<td>CSRF</td>
+<td>Same-origin checks on every mutation plus double-submit tokens for cookie sessions; no state-changing GET.</td>
+</tr>
+<tr>
+<td>XSS</td>
+<td>Output encoding by default; no <code>dangerouslySetInnerHTML</code> outside a sanitised Markdown subset; strict CSP with no <code>unsafe-inline</code> for scripts; no user HTML in profiles, comments or project copy.</td>
+</tr>
+<tr>
+<td>SQL injection</td>
+<td>Parameterised queries only; no string-built SQL; RLS as a second layer.</td>
+</tr>
+<tr>
+<td>Broken access control / IDOR</td>
+<td>Every object access re-checks ownership or membership server-side; client ids are never trusted as the subject.</td>
+</tr>
+<tr>
+<td>Privilege escalation</td>
+<td>Permission grants are Owner-controlled, checked per request; no role inference; protected targets refuse modification.</td>
+</tr>
+<tr>
+<td>Malicious project metadata</td>
+<td>Schema validation, URL scheme allowlist, path containment, plain-text rendering, never executed.</td>
+</tr>
+<tr>
+<td>Malicious repository content</td>
+<td>Parsed as data only; no script execution during discovery; builds isolated in CI with minimal permissions.</td>
+</tr>
+<tr>
+<td>Compromised webhooks</td>
+<td>HMAC signature verification over the raw body, delivery-id idempotency, replay window, rejected payloads logged.</td>
+</tr>
+<tr>
+<td>Supply chain</td>
+<td>Lockfile pinning, dependency review, automated advisories, no postinstall scripts in build CI, least-privilege workflow tokens.</td>
+</tr>
+<tr>
+<td>Build/deployment compromise</td>
+<td>Per-repository scoped tokens, protected branches, required reviews, environment protection, build output validated before publish.</td>
+</tr>
+<tr>
+<td>Secret leakage</td>
+<td>Service-role keys only in function secrets; secret scanning in CI; no secrets in the client bundle; rotation runbook.</td>
+</tr>
+<tr>
+<td>Spam and bots</td>
+<td>Rate limits, new-account friction, behaviour thresholds, CAPTCHA only on suspicious patterns.</td>
+</tr>
+<tr>
+<td>XP / leaderboard manipulation</td>
+<td>Server-only scoring, immutable ledger, caps, anomaly detection, exclusions for enforced accounts.</td>
+</tr>
+<tr>
+<td>Rating and follower brigading</td>
+<td>Weighting for young accounts, burst detection, per-account uniqueness, delayed public counts.</td>
+</tr>
+<tr>
+<td>Fake plays</td>
+<td>Session fingerprints, duration thresholds, dedupe windows, outlier detection.</td>
+</tr>
+<tr>
+<td>Chat abuse</td>
+<td>Rate limits, slow mode, mutes, report snapshots, moderation queue.</td>
+</tr>
+<tr>
+<td>DLES abuse</td>
+<td>Capability manifests, per-action permissions, confirmations, audit, emergency stop, replay protection.</td>
+</tr>
+<tr>
+<td>Reward duplication</td>
+<td>Unique <code>(event_id, user_id, item)</code> grants, idempotency keys, server-signed claims.</td>
+</tr>
+<tr>
+<td>Denial of service</td>
+<td>Per-route quotas, pagination caps, query timeouts, bounded fan-out, caching for public reads, graceful degradation.</td>
+</tr>
+</tbody>
+</table>
+<h2>13.2 Headers and hardening</h2>
+<p><code>Content-Security-Policy</code> with <code>default-src 'self'</code>, explicit script/style/host allowlists for fonts and the API origin, <code>frame-ancestors 'none'</code>, <code>object-src 'none'</code>. Plus <code>Strict-Transport-Security</code>, <code>X-Content-Type-Options: nosniff</code>, <code>Referrer-Policy: strict-origin-when-cross-origin</code>, <code>Permissions-Policy</code> disabling camera, microphone, geolocation and payment.</p>
+<p>Because game deployments are separate origins-by-path on the same host, the main application's CSP is scoped to its own routes so a game cannot weaken it, and games cannot read the platform's cookies beyond what the cookie scope allows.</p>
+<h2>13.3 Data minimisation</h2>
+<p>Collected: username, password hash, optional passkey/TOTP material, optional GitHub link, profile content the user chooses to add, activity needed for the features the user enables.</p>
+<p>Not collected: email (unless a future product decision adds it as optional), real name, phone, address, precise location, IP addresses beyond short-lived hashed rate-limit keys.</p>
+<p>Stored with care: IP hashed with a rotating salt for abuse detection and then discarded on a short schedule; user-agent reduced to a coarse device label; no third-party advertising or tracking scripts.</p>
+<h2>13.4 Privacy controls surfaced in the UI</h2>
+<ul>
+<li>Profile visibility, favourite visibility, collection defaults, online status, activity visibility.</li>
+<li>Activity-based recommendations on/off, with a plain explanation of what is read and what is not.</li>
+<li>Now-playing sharing, off by default, requiring integration support.</li>
+<li>Notification categories, including the separate opt-in for game update subscriptions.</li>
+<li>Data export (profile, collections, comments, ratings) and account deletion with a 14-day grace period.</li>
+</ul>
+<h2>13.5 Retention</h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Retention</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Account and profile</td>
+<td>Until deletion (+14-day grace).</td>
+</tr>
+<tr>
+<td>Sessions</td>
+<td>30 days after last use, or on revocation.</td>
+</tr>
+<tr>
+<td>Public chat messages</td>
+<td>24 months.</td>
+</tr>
+<tr>
+<td>Direct messages</td>
+<td>12 months after last activity in the conversation.</td>
+</tr>
+<tr>
+<td>Reports and snapshots</td>
+<td>24 months after resolution, or longer where an appeal is open.</td>
+</tr>
+<tr>
+<td>Moderation and audit records</td>
+<td>36 months.</td>
+</tr>
+<tr>
+<td>Security logs</td>
+<td>12 months.</td>
+</tr>
+<tr>
+<td>Aggregated statistics</td>
+<td>Indefinite, non-identifying.</td>
+</tr>
+<tr>
+<td>Deleted-account identifiers in audit rows</td>
+<td>Retained as opaque ids, no personal data.</td>
+</tr>
+</tbody>
+</table>
+<h2>13.6 Media policy</h2>
+<table>
+<thead>
+<tr>
+<th>Store</th>
+<th>Contents</th>
+<th>Rules</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub</td>
+<td>Source, game builds, static assets, release notes, project metadata and screenshots</td>
+<td>Public by definition; nothing secret is ever committed.</td>
+</tr>
+<tr>
+<td>Supabase Storage</td>
+<td>Profile avatars and banners, small approved platform assets</td>
+<td>2 MB max, JPEG/PNG/WebP, re-encoded, EXIF stripped, random keys, owner-deletable, moderated.</td>
+</tr>
+<tr>
+<td>Chat</td>
+<td><strong>Nothing</strong></td>
+<td>Text, emojis and reactions only. No uploads, no attachments, no external-image workaround.</td>
+</tr>
+</tbody>
+</table>
+<p>Game builds are not stored in Supabase Storage when GitHub Pages is the hosting target. Uploads are served through a controlled bucket with signed reads where the asset is private, and public reads only for published profile artwork.</p>
+<h2>13.7 Incident response</h2>
+<ol>
+<li><strong>Detect</strong> — error-rate alerts, failed-auth spikes, webhook failures, deployment failures, reports of abuse.</li>
+<li><strong>Contain</strong> — revoke sessions, disable an endpoint via feature flag, put the platform in read-only or maintenance mode, revoke a leaked key.</li>
+<li><strong>Assess</strong> — scope, affected data, whether notifications or legal obligations apply.</li>
+<li><strong>Eradicate</strong> — patch, rotate secrets, invalidate tokens, remove malicious content.</li>
+<li><strong>Recover</strong> — restore from backup if needed, verify integrity, re-enable features gradually.</li>
+<li><strong>Review</strong> — written post-incident note with timeline, cause, and follow-up actions, stored with audit records.</li>
+</ol>
+<p>Owner is notified of any security incident. Key rotation steps are documented and rehearsed, not improvised during an incident.</p>
+<blockquote>
+<p>No claim of absolute security is made. The specification instead fixes the checks that must exist in code, the places where trust changes hands, and what the platform does when a control fails.</p>
+</blockquote>
+</div>
+<nav class="pager" aria-label="Chapter navigation">
+<a class="pager-link prev" href="admin.html"><span>Previous</span><strong>Admin Panel, Staff Roles & Moderation</strong></a>
+<a class="pager-link next" href="quality.html"><span>Next</span><strong>Performance, Accessibility & QA</strong></a>
+</nav>
+</article>
+</main>
+<footer class="site-foot"><p>DuckyDrive Master Development Specification · Version 1.0 · 47 required sections across 17 chapters.</p><p>Planning and documentation only. No application code, application deployment or provider configuration is performed by this document.</p></footer>
+</div>
+<div class="scrim" id="scrim" hidden></div>
+</div>
+<script src="../assets/app.js"></script>
+</body>
+</html>
